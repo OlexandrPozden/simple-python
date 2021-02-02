@@ -41,6 +41,7 @@ a {
 }
 
 .text {
+    position: absolute;
     display: inline-block;
     margin: 5px;
 }
@@ -287,3 +288,18 @@ a {
     top: 0px;
     transform: scale(96);
 }
+
+
+/*
+.big-text {
+    z-index: 1;
+    position: inline;
+    align-self: flex-start;
+    margin-right: auto;
+    margin-top: -20px;
+    margin-left: 0px;
+    font-size: 122px;
+    font-weight: bold;
+    color: l;
+}
+*/
