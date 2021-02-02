@@ -29,13 +29,20 @@ body {
     width: 388px;
     height: 188px;
     border: 1px solid white;
-    color: white;
     display: flex;
+    color: white;
+}
+
+a {
+    color: inherit;
+    display: inline;
+    font-style: none;
 }
 
 .text {
     display: inline-block;
     margin: 5px;
+    font-style: none;
 }
 
 .top-left {
