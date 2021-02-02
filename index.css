@@ -37,12 +37,12 @@ a {
     color: inherit;
     display: inline;
     font-style: none;
+    text-decoration: none;
 }
 
 .text {
     display: inline-block;
     margin: 5px;
-    font-style: none;
 }
 
 .top-left {
