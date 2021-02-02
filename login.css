@@ -1,0 +1,147 @@
+* {
+    margin: 0;
+    padding: 0;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    color: #fff;
+}
+
+body {
+    background-color: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.main {
+    position: absolute;
+    border: 1px solid white;
+    border-left: 0px;
+    border-right: 0px;
+    width: 410px;
+    animation: width-border 0.7s ease-in-out;
+    height: 610px;
+    padding: 0px 10px;
+    display: flex;
+    justify-content: center;
+}
+
+@keyframes width-border {
+    from {
+        width: 1px;
+    }
+    to {
+        width: 410px;
+    }
+}
+
+h1 {
+    margin-top: 20px;
+    font-weight: 200;
+}
+
+.l1 {
+    animation: let1 0.01s linear;
+}
+
+@keyframes let1 {
+    0% {
+        color: black;
+    }
+    99% {
+        color: black;
+    }
+    100% {
+        color: white;
+    }
+}
+
+.l2 {
+    animation: let2 0.54s linear;
+}
+
+@keyframes let2 {
+    0% {
+        color: black;
+    }
+    99% {
+        color: black;
+    }
+    100% {
+        color: white;
+    }
+}
+
+.l3 {
+    animation: let3 1.2s linear;
+}
+
+@keyframes let3 {
+    0% {
+        color: black;
+    }
+    14% {
+        color: black;
+    }
+    15% {
+        color: white;
+    }
+    31% {
+        color: white;
+    }
+    32% {
+        color: black;
+    }
+    43% {
+        color: black;
+    }
+    44% {
+        color: white;
+    }
+    58% {
+        color: white;
+    }
+    59% {
+        color: black;
+    }
+    64% {
+        color: black;
+    }
+    65% {
+        color: white;
+    }
+    100% {
+        color: white;
+    }
+}
+
+.l4 {
+    animation: let4 0.6s linear;
+}
+
+@keyframes let4 {
+    0% {
+        color: black;
+    }
+    99% {
+        color: black;
+    }
+    100% {
+        color: white;
+    }
+}
+
+.l5 {
+    animation: let5 0.3s linear;
+}
+
+@keyframes let5 {
+    0% {
+        color: black;
+    }
+    99% {
+        color: black;
+    }
+    100% {
+        color: white;
+    }
+}
