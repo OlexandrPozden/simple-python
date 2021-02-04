@@ -31,6 +31,7 @@ body {
     border: 1px solid white;
     display: flex;
     color: white;
+    /*box-sizing: border-box; it will not cause incresing size of container, so border size will be unmoved while whit conte-box property it increases size of box*/
 }
 
 a {
