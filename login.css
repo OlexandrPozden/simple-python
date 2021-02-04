@@ -154,8 +154,9 @@ h1 {
 /* form styling*/
 
 form {
+    display: flex;
     flex-direction: column;
-    justify-content: space-evenly;
+    justify-content: space-around;
     height: 60%;
     width: 65%;
 }
