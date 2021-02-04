@@ -305,6 +305,14 @@ a {
     transition: 0.3s linear;
 }
 
-.big-text:hover {
+.login:hover {
     color: rgb(204, 43, 37, 0.2);
+}
+
+.sign-up {
+    font-size: 102px;
+}
+
+.sign-up:hover {
+    color: rgba(37, 81, 204, 0.2);
 }
