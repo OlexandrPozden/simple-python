@@ -156,13 +156,15 @@ h1 {
 form {
     display: flex;
     flex-direction: column;
-    height: 60%;
+    justify-content: space-around;
+    height: 56%;
     width: 65%;
+    margin-bottom: 20%;
 }
 
 form .input-div {
     position: relative;
-    height: 15%;
+    height: 45px;
     width: 100%;
     font-size: 12px;
     overflow: hidden;
@@ -268,7 +270,7 @@ form .input-div label::after {
 }
 
 .submit-cover {
-    height: 28px;
+    height: 35px;
     margin-top: 10px;
     display: inline-block;
     border: 1px solid rgba(199, 199, 199);
