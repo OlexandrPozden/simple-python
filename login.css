@@ -7,24 +7,26 @@
 
 body {
     background-color: black;
-    display: flex;
+    /*display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: center;*/
 }
 
 .main {
-    position: absolute;
+    margin: auto;
+    position: relative;
     border: 1px solid white;
     border-left: 0px;
     border-right: 0px;
     width: 410px;
     animation: width-border 0.7s ease-in-out;
-    height: 610px;
+    height: 500px;
     padding: 0px 10px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     flex-direction: column;
+    margin-top: 4%;
 }
 
 @keyframes width-border {
@@ -154,7 +156,7 @@ h1 {
 form {
     flex-direction: column;
     justify-content: space-evenly;
-    height: 50%;
+    height: 60%;
     width: 65%;
 }
 
@@ -220,4 +222,33 @@ form .input-div label::after {
 .input-div input:focus+.label-input::after,
 .input-div input:valid+.label-input::after {
     transform: translateX(0%);
+}
+
+
+/*links*/
+
+.links {
+    margin: auto;
+    margin-top: 20px;
+    width: 28%;
+    display: flex;
+    justify-content: space-around;
+    animation: link-appear 1s ease;
+}
+
+@keyframes link-appear {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0px);
+    }
+}
+
+.links a {
+    color: rgba(199, 199, 199);
+    position: inline-block;
+    font-size: 10px;
 }
