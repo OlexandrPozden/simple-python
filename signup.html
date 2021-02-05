@@ -3,28 +3,29 @@
 <head>
     <title>login-html</title>
     <link rel="stylesheet" href="login.css">
+    <script defer src="signup.js"></script>
 </head>
 
 <body>
     <div class="main">
         <h1><span class="l1">S</span><span class="l2">i</span><span class="l3">g</span><span class="l4">n u</span><span class="l5">p</span></h1>
-        <form action="POST">
+        <form action="POST" id="form">
             <div class="input-div"><input type="text" name="username" autocomplete="off" required>
                 <label for="username" class="label-input">
                     <span class="content-input">Username</span>
                 </label>
             </div>
-            <div class="input-div password-valid"><input type="password" name="password" autocomplete="off" required>
+            <div class="input-div password-valid"><input id="password1" type="password" name="password" autocomplete="off" required>
                 <label for="password" class="label-input password-valid">
                     <span class="content-input">Password</span>
                 </label>
             </div>
-            <div class="input-div password-valid"><input type="password" name="repeat-password" autocomplete="off" required>
+            <div class="input-div password-valid"><input id="password2" type="password" name="repeat-password" autocomplete="off" required>
                 <label for="repeat-password" class="label-input">
                     <span class="content-input">Repeat password</span>
                 </label>
             </div>
-            <p class="password-match">passwords do not match</p>
+            <p id="error"></p>
             <div class="submit-cover">
                 <input type="submit" value="Submit" class="submit">
             </div>
