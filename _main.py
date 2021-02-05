@@ -33,7 +33,7 @@ def application(environ, start_response):
         response_body="not equal"
     response_body = "equal"
     
-    if environ['PATH_INFO'].decode =='/':
+    if environ['PATH_INFO'] =='/':
         response_body = "at home page" 
 
     
@@ -47,5 +47,5 @@ def application(environ, start_response):
     start_response(status, response_headers)
     return [response_body.encode()]
 
-httpd = make_server('localhost', 5500, application)
+httpd = make_server('localhost', 5001, application)
 httpd.serve_forever()

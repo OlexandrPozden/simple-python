@@ -166,7 +166,7 @@ form .input-div {
     position: relative;
     height: 45px;
     width: 100%;
-    font-size: 12px;
+    font-size: 14px;
     overflow: hidden;
 }
 
@@ -178,7 +178,7 @@ form .input-div input {
     padding-top: 20px;
     background-color: rgb(0, 0, 0, 0);
     outline: none;
-    font-size: 12px
+    font-size: 14px
 }
 
 form .input-div label {
@@ -218,7 +218,7 @@ form .input-div label::after {
 .input-div input:valid+.label-input .content-input {
     transform: translateY(-150%);
     color: #fff;
-    font-size: 14px;
+    font-size: 10px;
 }
 
 .input-div input:focus+.label-input::after,
