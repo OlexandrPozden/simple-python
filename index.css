@@ -305,14 +305,30 @@ a {
     transition: 0.3s linear;
 }
 
+.login {
+    background: linear-gradient( -30deg, #fffb1933, #ff003733);
+    -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text;
+    transition: all .3s linear;
+    opacity: 0;
+}
+
 .login:hover {
-    color: rgb(204, 43, 37, 0.2);
+    /*
+    color: #8a5f3c25
+    */
+    opacity: 1;
 }
 
 .sign-up {
     font-size: 102px;
+    background: linear-gradient( -30deg, #0059ff44, hsla(241, 100%, 50%, 0.267), rgba(68, 0, 255, 0.267));
+    -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text;
+    transition: all .3s linear;
+    opacity: 0;
 }
 
 .sign-up:hover {
-    color: rgba(37, 81, 204, 0.2);
+    opacity: 1;
 }
