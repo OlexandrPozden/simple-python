@@ -350,3 +350,19 @@ a {
 .main:hover {
     opacity: 1;
 }
+
+.about {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    font-size: 124px;
+    background: linear-gradient( 80deg, #00ff4044, rgba(255, 72, 0, 0.267));
+    -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text;
+    transition: all .3s linear;
+    opacity: 0;
+}
+
+.about:hover {
+    opacity: 1;
+}
