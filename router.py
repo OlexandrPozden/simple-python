@@ -1,15 +1,14 @@
 class Router(object):
 
     
-    def __init__(self, path):
-        self.patho = path
+    def __init__(self):
+        self.endpoints = {}
 
-    @property
-    def path0(self):
-        return self.patho
-    def __str__(self):
-        return self.patho
-
-a = Router("path")
-print(a)
-a.path0
+    def register(self, path, file):
+        self.endpoints[path] = file
+    
+    def route(self, path):
+        #it takes path as argument, then
+        # it finds in the endpoints and reads the file, or it gets errors
+        # and return error message 
+        pass
