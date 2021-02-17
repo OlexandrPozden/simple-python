@@ -2,7 +2,7 @@
 
 from urllib.parse import parse_qs
 from html import escape
-from views import home
+from views import home, signup
 
 def application(environ, start_response):
 
@@ -34,7 +34,8 @@ def application(environ, start_response):
     
     if environ['PATH_INFO'] =='/':
         return home(environ, start_response)
-
+    elif environ['PATH_INFO'] =='/signup':
+        return signup(environ, start_response)
     
     status = '200 OK'
 

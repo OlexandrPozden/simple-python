@@ -3,11 +3,17 @@ from status_codes import error500
 def home(environ, start_response):
     print("Home view")
     try:
-        response_body = render("indhhhex.html")
+        response_body = render("indedx.html")
         print("redered fine")
         start_response('200 OK',[('Content-Type','text/html'),('Content-length',str(len(response_body)))])
         return [response_body.encode()]
 
     except IOError as err:
         return error500(environ, start_response, str(err))
+
+def signup(environ, start_response):
+    read_elements = int(environ['CONTENT_LENGTH'])
+    response_body = environ['wsgi.input'].read(read_elements)
     
+    start_response('200 OK',[('Content-Type','text/html'),('Content-length',str(len(response_body)))])
+    return [response_body]
