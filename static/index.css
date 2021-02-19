@@ -345,10 +345,12 @@ a {
     -webkit-background-clip: text;
     transition: all .3s linear;
     opacity: 0;
+    text-shadow: 0px 0px;
 }
 
 .main:hover {
     opacity: 1;
+    text-shadow: 0px 0px 5px #ff008c1a;
 }
 
 .about {
@@ -361,8 +363,10 @@ a {
     -webkit-background-clip: text;
     transition: all .3s linear;
     opacity: 0;
+    text-shadow: 0px 0px;
 }
 
 .about:hover {
     opacity: 1;
+    text-shadow: 0px 0px 10px #88ff0044;
 }
