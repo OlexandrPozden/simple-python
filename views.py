@@ -3,7 +3,7 @@ from status_codes import error500
 def home(environ, start_response):
     print("Home view")
     try:
-        response_body = render("indedx.html")
+        response_body = render("index.html")
         print("redered fine")
         start_response('200 OK',[('Content-Type','text/html'),('Content-length',str(len(response_body)))])
         return [response_body.encode()]
