@@ -1,10 +1,13 @@
-FROM nginx:1.15.8-alpine
-#configuration
-COPY ./nginx.conf /etc/nginx/nginx.conf
+FROM python:3
 
-#content, comment out the ones you dont need!
-COPY ./*.html /usr/share/nginx/html/
+RUN pip install --upgrade pip
 
-COPY ./static/*.css /usr/share/nginx/html/static/
-#copy ./*.png /usr/share/nginx/html/
-COPY ./static/*.js /usr/share/nginx/html/static/
+COPY ./requirements.txt .
+RUN pip install -r requirements.txt
+
+COPY ./ /app
+
+WORKDIR /app
+
+COPY ./entrypoint.sh /
+ENTRYPOINT ["sh", "/entrypoint.sh"]
