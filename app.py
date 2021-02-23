@@ -31,17 +31,21 @@ def application(environ, start_response):
     # if password1 != password2:
     #     response_body="not equal"
     # response_body = "equal"
-    
-    if environ['PATH_INFO'] =='/':
-        return home(environ, start_response)
-    elif environ['PATH_INFO'] =='/signup':
-        return signup(environ, start_response)
-    elif environ['PATH_INFO'] =='/login':
-        return login(environ, start_response)
-    elif environ['PATH_INFO'] =='/about':
-        return about(environ, start_response)    
-    
     status = '200 OK'
+    
+    if environ['PATH_INFO'].lower() =='/':
+        return home(environ, start_response)
+    elif environ['PATH_INFO'].lower() =='/signup':
+        return signup(environ, start_response)
+    elif environ['PATH_INFO'].lower() =='/login':
+        return login(environ, start_response)
+    elif environ['PATH_INFO'].lower() =='/about':
+        return about(environ, start_response)    
+    else:
+        response_body = "it works with python proxy"
+        start_response('200 OK',[('Content-Type','text/html'),('Content-length',str(len(response_body)))])
+        return [response_body]
+    
 
     # response_headers = [
     #     ('Content-Type', 'text/html'),
