@@ -2,21 +2,24 @@ version: '3.7'
 
 services:
   gunicorn:
-    volumes:
-      - static:/static
-    env_file:
-      - .env
+    #volumes:
+     # - static:/static
+    #env_file:
+     # - .env
     build:
       context: .
     ports:
       - "8000:8000"
   nginx:
-    build: ./nginx
-    volumes:
-      - static:/static
+    build:
+      context: ./
+      dockerfile: ./nginx/Dockerfile
+    #volumes:
+    #  - static:/static
     ports:
       - "81:80"
     depends_on:
       - gunicorn
 
-volumes:
+#volumes:
+#  static:

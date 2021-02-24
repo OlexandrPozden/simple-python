@@ -42,7 +42,7 @@ def application(environ, start_response):
     elif environ['PATH_INFO'].lower() =='/about':
         return about(environ, start_response)    
     else:
-        response_body = "it works with python proxy"
+        response_body = b"it works with python proxy"
         start_response('200 OK',[('Content-Type','text/html'),('Content-length',str(len(response_body)))])
         return [response_body]
     
