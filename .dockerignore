@@ -1,5 +1,3 @@
-dockerignore
-gitignore
-nginx
-static
+.dockerignore
+.gitignore
 .vscode
