@@ -3,7 +3,7 @@ from status_codes import error500
 def home(environ, start_response):
     print("Home view")
     try:
-        response_body = render("index.html")
+        response_body = render("html/index.html")
         print("redered fine")
         start_response('200 OK',[('Content-Type','text/html'),('Content-length',str(len(response_body)))])
         return [response_body.encode()]
@@ -13,7 +13,7 @@ def home(environ, start_response):
 
 def signup(environ, start_response):
     try:
-        response_body = render("signup.html")
+        response_body = render("html/signup.html")
         print("redered fine")
         start_response('200 OK',[('Content-Type','text/html'),('Content-length',str(len(response_body)))])
         return [response_body.encode()]

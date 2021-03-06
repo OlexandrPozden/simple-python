@@ -2,7 +2,7 @@
 
 from urllib.parse import parse_qs
 from html import escape
-from views import home, signup, login, about
+from backend.views import home, signup, login, about
 
 def application(environ, start_response):
 
