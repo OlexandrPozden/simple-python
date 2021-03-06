@@ -1,9 +1,12 @@
-FROM nginx:1.15.8-alpine
+FROM nginx
 #configuration
-COPY ./nginx/default.conf /etc/nginx/default.conf
 
+RUN rm /etc/nginx/conf.d/default.conf
+
+# Replace with our own nginx.conf
+COPY ./nginx/nginx.conf /etc/nginx/conf.d/
 #content, comment out the ones you dont need!
-COPY ./*.html /usr/share/nginx/html/
+#COPY ./*.html /usr/share/nginx/html/
 
 COPY ./static/*.css /usr/share/nginx/html/static/
 #copy ./*.png /usr/share/nginx/html/

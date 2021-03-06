@@ -7,11 +7,11 @@ from views import home, signup, login, about
 def application(environ, start_response):
 
     # the environment variable CONTENT_LENGTH may be empty or missing
-    try:
-        request_body_size = int(environ.get('CONTENT_LENGTH', 0))
-        print(request_body_size)
-    except (ValueError):
-        request_body_size = 0
+    # try:
+    #     request_body_size = int(environ.get('CONTENT_LENGTH', 0))
+    #     print(request_body_size)
+    # except (ValueError):
+    #     request_body_size = 0
 
     # When the method is POST the variable will be sent
     # in the HTTP request body which is passed by the WSGI server
@@ -31,11 +31,13 @@ def application(environ, start_response):
     # if password1 != password2:
     #     response_body="not equal"
     # response_body = "equal"
-    status = '200 OK'
-    
+    #status = '200 OK'
+    print("app has started")
     if environ['PATH_INFO'].lower() =='/':
+        print("path home")
         return home(environ, start_response)
     elif environ['PATH_INFO'].lower() =='/signup':
+        print("path signup")
         return signup(environ, start_response)
     elif environ['PATH_INFO'].lower() =='/login':
         return login(environ, start_response)
@@ -56,5 +58,5 @@ def application(environ, start_response):
     # return [response_body.encode()]
 if __name__ == '__main__':    
     from wsgiref.simple_server import make_server
-    httpd = make_server('localhost', 8000, application)
+    httpd = make_server('localhost', 7000, application)
     httpd.serve_forever()
