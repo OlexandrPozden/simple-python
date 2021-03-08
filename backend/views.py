@@ -1,7 +1,7 @@
 __name__ ="views"
 
-from .utils import render
-from .status_codes import error500
+from utils import render
+from status_codes import error500
 
 def home(environ, start_response):
     print("Home view")
