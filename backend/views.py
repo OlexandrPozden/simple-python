@@ -1,4 +1,3 @@
-__name__ ="views"
 
 from .utils import render
 from .status_codes import error500
