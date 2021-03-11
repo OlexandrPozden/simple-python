@@ -1,9 +1,13 @@
-#from status_codes import error500
+from .status_codes import error500
 
-def render(filename, context={}):
-    #print("rendering")
-    html_str = ""
-    with open(filename, 'r') as f:
-        html_str = f.read()
-        html_str = html_str.format(**context)
-    return html_str
+def render(environ, start_response,filename, context={}):
+    try:
+        response_body = ""
+        with open(filename, 'r') as f:
+            response_body = f.read()
+            response_body = response_body.format(**context)
+        start_response('200 OK',[('Content-Type','text/html'),('Content-length',str(len(response_body)))])
+        return [response_body.encode()]
+
+    except IOError as err:
+        return error500(environ, start_response, str(err))
