@@ -1,7 +1,7 @@
 #from status_codes import error500
 
 def render(filename, context={}):
-    print("rendering")
+    #print("rendering")
     html_str = ""
     with open(filename, 'r') as f:
         html_str = f.read()
