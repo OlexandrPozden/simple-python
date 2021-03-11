@@ -1,4 +1,4 @@
-from .views import login, signup, home, logining
+from .views import login, signup, home
 urlpatterns = {
     ('get','/login'): login,
     ('get','/signup'): signup,
