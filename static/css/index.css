@@ -296,7 +296,6 @@ a {
     position: absolute;
     width: 100%;
     height: 100%;
-    align-self: flex-start;
     margin-right: auto;
     margin-top: 0px;
     margin-left: 0px;
@@ -307,6 +306,8 @@ a {
 }
 
 .login {
+    justify-content: center;
+    align-items: center;
     background: linear-gradient( -30deg, #fffb1933, #ff003733);
     -webkit-text-fill-color: transparent;
     -webkit-background-clip: text;
@@ -322,7 +323,8 @@ a {
 }
 
 .sign-up {
-    align-self: center;
+    justify-content: center;
+    align-items: center;
     font-size: 102px;
     background: linear-gradient( -30deg, #0059ff44, hsla(241, 100%, 50%, 0.267), rgba(68, 0, 255, 0.267));
     -webkit-text-fill-color: transparent;
@@ -340,23 +342,23 @@ a {
     justify-content: center;
     align-items: center;
     font-size: 150px;
-    background: linear-gradient( -30deg, #ff000044, rgba(38, 0, 255, 0.267));
+    background: linear-gradient( -30deg, #fd28c8, rgb(61, 33, 163));
     -webkit-text-fill-color: transparent;
     -webkit-background-clip: text;
-    transition: all .3s ease-in;
+    transition: all .18s ease-in;
     opacity: 0;
     text-shadow: 0px 0px;
 }
 
 .main:hover {
     opacity: 1;
-    text-shadow: 0px 0px 5px #ff008c1a;
+    text-shadow: 0px 0px 5px #f33c24a6;
 }
 
 .about {
     display: flex;
-    justify-content: flex-start;
-    align-items: flex-start;
+    justify-content: center;
+    align-items: center;
     font-size: 124px;
     background: linear-gradient(to right, rgb(219, 79, 44, 0.3), rgb(233, 170, 24, 0.3), rgb(138, 21, 25, 0.3));
     -webkit-text-fill-color: transparent;
