@@ -6,3 +6,8 @@ def error500(environ, start_response, info=""):
 def notfound(environ, start_response):
     start_response('404 Not Found', [('Content-Type','text/plain')])
     return [b'404 Not Found']
+
+
+def ok200(environ, start_response):
+    start_response('200 OK', [('Content-Type','text/plain')])
+    return [b'200 OK']
