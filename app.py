@@ -36,8 +36,12 @@ class Application():
         environ['params'] = {k:params.getvalue(k) for k in params}
         handler = urlpatterns.get((method,path), notfound)
         return handler(environ, start_response)
-if __name__ == '__main__':    
+if __name__ == '__main__':
+    port = 7000
+    print("App is running...")    
     from wsgiref.simple_server import make_server
     app = Application()
-    httpd = make_server('localhost', 7000, app)
+    httpd = make_server('localhost', port, app)
+    print("App serves on 0.0.0.0:%s"%(port))
+    print("Press Ctrl+C to stop")
     httpd.serve_forever()

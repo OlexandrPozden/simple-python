@@ -3,7 +3,7 @@ from .utils import render
 from .status_codes import error500
 
 def home(environ, start_response):
-    return render(environ, start_response, 'static/main.html')
+    return render(environ, start_response, 'static/index.html')
 
 def signup(environ, start_response):
     return render(environ, start_response, 'static/signup.html')
