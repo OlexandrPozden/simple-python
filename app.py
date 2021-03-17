@@ -6,6 +6,8 @@ from backend.views import home, signup, login, about, main
 from backend.url import urlpatterns
 from backend.status_codes import notfound
 import cgi
+from collections.abc import Iterable
+
 def application(environ, start_response):
 
     if environ['PATH_INFO'].lower() =='/':
@@ -33,7 +35,11 @@ class Application():
         method = environ.get('REQUEST_METHOD').lower()
         path = environ.get('PATH_INFO')
         params = cgi.FieldStorage(environ.get('wsgi.input'), environ=environ)
-        environ['params'] = {k:params.getvalue(k) for k in params}
+        print(isinstance(params,Iterable))
+        try:
+            environ['params'] = {k:params.getvalue(k) for k in params}
+        except:
+            pass
         handler = urlpatterns.get((method,path), notfound)
         return handler(environ, start_response)
 if __name__ == '__main__':

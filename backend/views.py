@@ -33,11 +33,22 @@ def data(environ, start_response):
     try:
         cur.execute("CREATE TABLE test (id serial PRIMARY KEY, num integer, data varchar);")
     except:
-        pass
+        conn.rollback()
+    else:
+        conn.commit()
     if environ.get('REQUEST_METHOD').lower() == 'post':
-        cur.execute("INSERT INTO test (num, data) VALUES (%s, %s)",(100, "abc'def"))
+        try:
+            cur.execute("INSERT INTO test (num, data) VALUES (%s, %s);",(100, "abc'def"))
+        except:
+            conn.rollback()
+        else:
+            conn.commit()
+        cur.close()
+        conn.close()
         return ok200(environ, start_response)
     else:
         cur.execute("SELECT * FROM test;")
+        response_body = "\n".join([ " ".join([str(r) for r in record]) for record in cur])
+        
         start_response('200 OK', [('Content-Type','text/plain')])
-        return [b"\n".join([ " ".join([r for r in record]) for record in cur])]
+        return [response_body.encode()]
