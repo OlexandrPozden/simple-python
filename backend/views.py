@@ -2,6 +2,8 @@
 from .utils import render
 from .status_codes import error500, ok200
 import psycopg2
+from .models import ConnectPg
+
 def home(environ, start_response):
     return render(environ, start_response, 'static/index.html')
 
@@ -28,7 +30,8 @@ def about(environ, start_response):
     return render(environ, start_response, 'static/about.html')    
 
 def data(environ, start_response): 
-    conn = psycopg2.connect("dbname=test user=postgres password=1valera1 port=5432")
+    #conn = psycopg2.connect(dbname="test", user='postgres', password="1valera1", port=5432)
+    conn = ConnectPg.conn
     cur = conn.cursor()
     try:
         cur.execute("CREATE TABLE test (id serial PRIMARY KEY, num integer, data varchar);")
@@ -44,11 +47,10 @@ def data(environ, start_response):
         else:
             conn.commit()
         cur.close()
-        conn.close()
         return ok200(environ, start_response)
     else:
         cur.execute("SELECT * FROM test;")
         response_body = "\n".join([ " ".join([str(r) for r in record]) for record in cur])
-        
+        cur.close()
         start_response('200 OK', [('Content-Type','text/plain')])
         return [response_body.encode()]

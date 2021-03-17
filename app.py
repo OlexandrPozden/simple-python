@@ -7,6 +7,7 @@ from backend.url import urlpatterns
 from backend.status_codes import notfound
 import cgi
 from collections.abc import Iterable
+from backend.models import ConnectPg
 
 def application(environ, start_response):
 
@@ -34,12 +35,12 @@ class Application():
     def __call__(self, environ, start_response):
         method = environ.get('REQUEST_METHOD').lower()
         path = environ.get('PATH_INFO')
-        params = cgi.FieldStorage(environ.get('wsgi.input'), environ=environ)
-        print(isinstance(params,Iterable))
-        try:
-            environ['params'] = {k:params.getvalue(k) for k in params}
-        except:
-            pass
+        # params = cgi.FieldStorage(environ.get('wsgi.input'), environ=environ)
+        # print(isinstance(params,Iterable))
+        # try:
+        #     environ['params'] = {k:params.getvalue(k) for k in params}
+        # except:
+        #     pass
         handler = urlpatterns.get((method,path), notfound)
         return handler(environ, start_response)
 if __name__ == '__main__':
@@ -47,6 +48,7 @@ if __name__ == '__main__':
     print("App is running...")    
     from wsgiref.simple_server import make_server
     app = Application()
+    ConnectPg.connect_database()
     httpd = make_server('localhost', port, app)
     print("App serves on 0.0.0.0:%s"%(port))
     print("Press Ctrl+C to stop")
