@@ -1,3 +1,4 @@
+import time
 def error500(environ, start_response, info=""):
     info_response = "\n"+info
     start_response('500 Internal Server Error',[('Content-type','text/plain')])
@@ -9,5 +10,10 @@ def notfound(environ, start_response):
 
 
 def ok200(environ, start_response):
+    
+    a = time.time()
     start_response('200 OK', [('Content-Type','text/plain')])
+    
+    b = time.time()
+    print("200ok start_response: {:.5f}".format(b-a))
     return [b'200 OK']

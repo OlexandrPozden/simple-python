@@ -8,7 +8,7 @@ from backend.status_codes import notfound
 import cgi
 from collections.abc import Iterable
 from backend.models import ConnectPg
-
+import time
 def application(environ, start_response):
 
     if environ['PATH_INFO'].lower() =='/':
@@ -33,6 +33,7 @@ class Application():
     def __init__(self):
         pass
     def __call__(self, environ, start_response):
+        a = time.time()
         method = environ.get('REQUEST_METHOD').lower()
         path = environ.get('PATH_INFO')
         # params = cgi.FieldStorage(environ.get('wsgi.input'), environ=environ)
@@ -42,6 +43,8 @@ class Application():
         # except:
         #     pass
         handler = urlpatterns.get((method,path), notfound)
+        b = time.time()
+        print("Time takes to parse HTTP: {:.3f}".format(b-a))
         return handler(environ, start_response)
 if __name__ == '__main__':
     port = 7000
