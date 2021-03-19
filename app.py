@@ -46,11 +46,11 @@ class Application():
         b = time.time()
         print("Time takes to parse HTTP: {:.3f}".format(b-a))
         return handler(environ, start_response)
+app = Application()
 if __name__ == '__main__':
     port = 7000
     print("App is running...")    
     from wsgiref.simple_server import make_server
-    app = Application()
     ConnectPg.connect_database()
     httpd = make_server('localhost', port, app)
     print("App serves on 0.0.0.0:%s"%(port))
