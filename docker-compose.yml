@@ -11,6 +11,8 @@ services:
     container_name: app
     ports:
       - "7000:7000"
+    depends_on: 
+      - db
   nginx:
     build:
       context: ./
@@ -22,6 +24,17 @@ services:
       - "83:80"
     depends_on:
       - app
+  db:
+    image: postgres
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    container_name: db
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1valera1
+    ports:
+      - "5432:5432"
 
 #volumes:
 #  static:

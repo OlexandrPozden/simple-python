@@ -31,11 +31,12 @@ def about(environ, start_response):
 
 def data(environ, start_response): 
     a = time.time()
-    conn = psycopg2.connect(dbname="test", user='postgres', password="1valera1", port=5432)
+    conn = psycopg2.connect(dbname="postgres", user='postgres', password="1valera1", port=5432, host='172.20.0.2')
     b = time.time()
     print("Time takes to connect to database: {:.5f}".format(b-a))
     #conn = ConnectPg.conn
     cur = conn.cursor()
+    cur.execute("CREATE TABLE IF NOT EXISTS test (id serial PRIMARY KEY, num integer, data varchar);")
     b = time.time()
     print("To get cursor: {:.5f}".format(b-a))
     print(cur)
@@ -52,6 +53,7 @@ def data(environ, start_response):
         #     conn.rollback()
         # else:
         #     conn.commit()
+
         cur.execute("INSERT INTO test (num, data) VALUES (%s, %s);",(100, "abc'def"))    
         b = time.time()
         print("To execute command: {:.5f}".format(b-a))
