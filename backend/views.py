@@ -2,7 +2,7 @@
 from .utils import render
 from .status_codes import error500, ok200
 import psycopg2
-from .models import ConnectPg
+from .models import ConnectPg, HOSTNAME
 import time
 def home(environ, start_response):
     return render(environ, start_response, 'static/index.html')
@@ -31,7 +31,7 @@ def about(environ, start_response):
 
 def data(environ, start_response): 
     a = time.time()
-    conn = psycopg2.connect(dbname="postgres", user='postgres', password="1valera1", port=5434, host='localhost')
+    conn = psycopg2.connect(dbname="postgres", user='postgres', password="1valera1", port=5432, host=HOSTNAME)
     b = time.time()
     print("Time takes to connect to database: {:.5f}".format(b-a))
     #conn = ConnectPg.conn

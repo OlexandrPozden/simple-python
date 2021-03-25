@@ -1,5 +1,6 @@
 FROM python:3
 
+ENV HOSTNAME=db
 RUN pip install --upgrade pip
 
 COPY ./requirements.txt .

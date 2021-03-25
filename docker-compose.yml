@@ -37,8 +37,6 @@ services:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=1valera1
-    ports:
-      - "5434:5432"
     networks:
       - app-tier
 

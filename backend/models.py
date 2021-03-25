@@ -1,4 +1,5 @@
 import psycopg2
+import os
 class ConnectPg:
     dbname="test"
     user="postgres"
@@ -15,8 +16,7 @@ class ConnectPg:
         else:
             print("Database is connected")
 
-
-
+HOSTNAME = os.environ.get('HOSTNAME', 'localhost')
 # class User():
 #     def __init__(self, username, password):
 #         self.username = username
