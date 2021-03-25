@@ -31,7 +31,7 @@ def about(environ, start_response):
 
 def data(environ, start_response): 
     a = time.time()
-    conn = psycopg2.connect(dbname="postgres", user='postgres', password="1valera1", port=5432, host='172.20.0.2')
+    conn = psycopg2.connect(dbname="postgres", user='postgres', password="1valera1", port=5434, host='localhost')
     b = time.time()
     print("Time takes to connect to database: {:.5f}".format(b-a))
     #conn = ConnectPg.conn
