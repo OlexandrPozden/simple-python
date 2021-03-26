@@ -5,16 +5,30 @@ body {
 }
 
 .svg {
-    display: inline-block;
-    height: 400px;
+    margin: auto;
+    display: flex;
+    height: 500px;
     width: 400px;
     line-height: 300px;
-    text-align: center;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
     border-radius: 10%;
+    color: #fff;
+}
+
+p {
+    margin-top: 18%;
+    position: absolute;
+}
+
+a {
+    margin-top: 21%;
+    position: absolute;
 }
 
 #svg {
-    height: 400px;
+    height: 200px;
     width: 300px;
     display: inline-block;
     vertical-align: middle;
