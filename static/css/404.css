@@ -2,6 +2,7 @@ body {
     background-color: #000000;
     line-height: 100vh;
     text-align: center;
+    font-family: Proxima Nova, sans-serif;
 }
 
 .svg {
@@ -10,21 +11,35 @@ body {
     height: 500px;
     width: 400px;
     line-height: 300px;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     flex-direction: column;
     border-radius: 10%;
     color: #fff;
+    margin-top: 10%;
 }
 
 p {
+    font-size: 36px;
     margin-top: 18%;
+    margin-left: 0px;
     position: absolute;
 }
 
 a {
-    margin-top: 21%;
+    display: inline-block;
+    margin-top: 45%;
     position: absolute;
+    text-decoration: none;
+}
+
+a div {
+    display: inline;
+    padding: 7px 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    text-decoration: inherit;
+    color: #ccc;
 }
 
 #svg {
