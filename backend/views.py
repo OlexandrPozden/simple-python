@@ -2,7 +2,7 @@
 from .utils import render
 from .status_codes import error500, ok200
 import psycopg2
-from .models import ConnectPg, HOSTNAME
+#from .models import ConnectPg, HOSTNAME
 import time
 def home(environ, start_response):
     return render(environ, start_response, 'static/index.html')

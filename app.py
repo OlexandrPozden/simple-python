@@ -7,7 +7,7 @@ from backend.url import urlpatterns
 from backend.status_codes import notfound
 import cgi
 from collections.abc import Iterable
-from backend.models import ConnectPg
+#from backend.models import ConnectPg
 import time
 def application(environ, start_response):
 
@@ -47,12 +47,19 @@ class Application():
         print("Time takes to parse HTTP: {:.3f}".format(b-a))
         return handler(environ, start_response)
 app = Application()
-if __name__ == '__main__':
-    port = 7000
-    print("App is running...")    
-    from wsgiref.simple_server import make_server
-    ConnectPg.connect_database()
-    httpd = make_server('localhost', port, app)
-    print("App serves on 0.0.0.0:%s"%(port))
-    print("Press Ctrl+C to stop")
-    httpd.serve_forever()
+
+if __name__ == "__main__":
+    from werkzeug.serving import run_simple
+
+    # app = create_app()
+    run_simple("127.0.0.1", 7000, app, use_debugger=True, use_reloader=True)
+    
+# if __name__ == '__main__':
+#     port = 7000
+#     print("App is running...")    
+#     from wsgiref.simple_server import make_server
+#     #ConnectPg.connect_database()
+#     httpd = make_server('localhost', port, app)
+#     print("App serves on 0.0.0.0:%s"%(port))
+#     print("Press Ctrl+C to stop")
+#     httpd.serve_forever()

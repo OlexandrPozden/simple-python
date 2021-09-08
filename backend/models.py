@@ -6,7 +6,7 @@ import os
 password = os.getenv('DB_PASSWORD','postgres')
 db_string = "postgres-psycopg2://postgres:{}@localhost/test".format(password)
 
-db = create_engine(db_string)  
+#db = create_engine(db_string)  
 base = declarative_base()
 
 class Film(base):  
@@ -16,25 +16,25 @@ class Film(base):
     director = Column(String)
     year = Column(String)
 
-Session = sessionmaker(db)  
-session = Session()
+#Session = sessionmaker(db)  
+#session = Session()
 
-base.metadata.create_all(db)
+#base.metadata.create_all(db)
 
 # Create 
-doctor_strange = Film(title="Doctor Strange", director="Scott Derrickson", year="2016")  
-session.add(doctor_strange)  
-session.commit()
+#doctor_strange = Film(title="Doctor Strange", director="Scott Derrickson", year="2016")  
+#session.add(doctor_strange)  
+# #session.commit()
 
-# Read
-films = session.query(Film)  
-for film in films:  
-    print(film.title)
+# # Read
+# films = session.query(Film)  
+# for film in films:  
+#     print(film.title)
 
-# Update
-doctor_strange.title = "Some2016Film"  
-session.commit()
+# # Update
+# doctor_strange.title = "Some2016Film"  
+# session.commit()
 
-# Delete
-session.delete(doctor_strange)  
-session.commit()  
+# # Delete
+# session.delete(doctor_strange)  
+# session.commit()  
