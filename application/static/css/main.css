@@ -25,11 +25,35 @@ body {
 }
 
 .posts {
+    position: relative;
+    width: 600px;
     border: 1px solid #fff;
-    box-sizing: border-box;
     padding: 5px 20px;
+    padding-right: 25px;
 }
 
 .posts li {
     color: #fff;
+}
+
+.posts li:hover {
+    background-color: rgb(85, 85, 85);
+}
+
+.posts li .buttons {
+    display: inline-block;
+    position: absolute;
+    right: 10px;
+}
+
+.posts li .button {
+    display: inline-block;
+    margin: 2px 2px;
+    border-radius: 2px;
+}
+
+.posts li .button:hover {
+    text-decoration: underline;
+    color: azure;
+    cursor: pointer;
 }
