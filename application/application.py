@@ -45,10 +45,10 @@ class Application(object):
         return self.render_template('login.html')
     def main(self,request):
         if request.method == 'POST':
-            body = request.get_json()
-            print(body)
+            values = request.form
+            print(values)
             #self.post_text(text)
-        return self.render_template('main.html')
+        return self.render_template('main.html', posts=["hello", "world","and so on"])
     def signup(self,request):
         return self.render_template('signup.html')
     def dispatch_request(self,request):
