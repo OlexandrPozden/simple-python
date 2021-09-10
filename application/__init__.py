@@ -1,4 +1,4 @@
-from .backend import application
+from .application import application
 
 def make_app():
     return application
