@@ -44,6 +44,10 @@ class Application(object):
     def login(self,request):
         return self.render_template('login.html')
     def main(self,request):
+        if request.method == 'POST':
+            body = request.get_json()
+            print(body)
+            #self.post_text(text)
         return self.render_template('main.html')
     def signup(self,request):
         return self.render_template('signup.html')
