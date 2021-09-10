@@ -19,7 +19,7 @@
         <div class="posts">
             <ol>
                 {% for post in posts %}
-                <li>{{ post }}</li>
+                <li>{{post.post_id}}{{ post.text }}</li>
                 {% endfor %}
             </ol>
 

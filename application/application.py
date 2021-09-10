@@ -21,12 +21,30 @@ from werkzeug.routing import Map, Rule, NotFound, RequestRedirect
 from werkzeug.exceptions import HTTPException, NotFound
 from werkzeug.middleware.shared_data import SharedDataMiddleware
 from werkzeug.utils import redirect
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base  
+from sqlalchemy import Column, String, Integer  
 import os
 from jinja2 import Environment
 from jinja2 import FileSystemLoader
 
+base = declarative_base()
+class Post(base):
+    __tablename__ = 'posts'
+    post_id = Column(Integer, primary_key=True, autoincrement=True)
+    text = Column(String, nullable=False)
+
+    def __repr__(self):
+        return '<Post %r>' % self.post_id
+
 class Application(object):
     def __init__(self, config=None):
+        engine = create_engine('sqlite:///test.db', echo=True)
+        Session = sessionmaker(engine)  
+        self.session = Session()
+        base.metadata.create_all(engine)
+
         template_path = os.path.join(os.path.dirname(__file__), "templates")
         self.jinja_env = Environment(
             loader=FileSystemLoader(template_path), autoescape=True
@@ -44,13 +62,25 @@ class Application(object):
     def login(self,request):
         return self.render_template('login.html')
     def main(self,request):
+        posts=[]
         if request.method == 'POST':
-            values = request.form
-            print(values)
-            #self.post_text(text)
-        return self.render_template('main.html', posts=["hello", "world","and so on"])
+            text = request.form['text']
+            posts = self.post_text(text)
+        else:
+            posts = self.read_posts()
+        return self.render_template('main.html', posts=posts)
     def signup(self,request):
         return self.render_template('signup.html')
+    def read_posts(self):
+        posts = self.session.query(Post)
+        return [p for p in posts]
+
+    def post_text(self,text:str):
+        post = Post(text=text)
+        self.session.add(post)
+        self.session.commit()
+        return self.read_posts()
+        
     def dispatch_request(self,request):
         endpoint_to_views={
             "index":self.index,
@@ -74,7 +104,6 @@ class Application(object):
 
     def __call__(self, environ, start_response):
         return self.wsgi_app(environ, start_response)
-
 
 def create_app(with_static=True):
     app = Application()
