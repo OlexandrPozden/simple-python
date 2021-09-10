@@ -2,7 +2,10 @@ import click
 from werkzeug.serving import run_simple
 
 from application import make_app
-
+import os
+print(__file__)
+print(os.getcwd())
+print(os.path.dirname(__file__))
 
 @click.group()
 def cli():
