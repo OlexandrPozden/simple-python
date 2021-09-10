@@ -28,8 +28,8 @@ body {
     position: relative;
     width: 600px;
     border: 1px solid #fff;
-    padding: 5px 20px;
-    padding-right: 25px;
+    padding: 5px 0px;
+    padding-left: 20px
 }
 
 .posts li {
