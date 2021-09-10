@@ -1,0 +1,42 @@
+<html !DOCTYPE html>
+
+<head>
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="css/login.css">
+    <script defer src="js/signup.js"></script>
+</head>
+
+<body>
+    <div class="main">
+        <h1><span class="l1">S</span><span class="l2">i</span><span class="l3">g</span><span class="l4">n u</span><span class="l5">p</span></h1>
+        <form action="POST" id="form" action="http://127.0.0.1:5500/main.html">
+            <div class="input-div"><input type="text" name="username" autocomplete="off" required>
+                <label for="username" class="label-input">
+                    <span class="content-input">Username</span>
+                </label>
+            </div>
+            <div class="input-div password-valid"><input id="password1" type="password" name="password" autocomplete="off" required>
+                <label for="password" class="label-input password-valid">
+                    <span class="content-input">Password</span>
+                </label>
+            </div>
+            <div class="input-div password-valid"><input id="password2" type="password" name="repeat-password" autocomplete="off" required>
+                <label for="repeat-password" class="label-input">
+                    <span class="content-input">Repeat password</span>
+                </label>
+            </div>
+            <p id="error"></p>
+            <div class="submit-cover">
+                <input type="submit" value="Submit" class="submit">
+            </div>
+
+        </form>
+    </div>
+    <div class="links">
+        <a href="/">go home</a>
+        <a href="/login">login</a>
+    </div>
+
+</body>
+
+</html>

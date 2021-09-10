@@ -1,0 +1,375 @@
+* {
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+}
+
+body {
+    background-color: black;
+    padding: 40px 80px;
+    display: flex;
+    justify-content: center
+}
+
+.container {
+    border: 2px rgb(255, 255, 255);
+    border-style: none;
+    width: 1200px;
+    height: 600px;
+    display: grid;
+    grid-template-rows: repeat(3, 1fr);
+    grid-template-columns: repeat(3, 1fr);
+    padding: 9px;
+    gap: 9px;
+    flex-wrap: nowrap;
+    flex-flow: nowrap;
+}
+
+.div {
+    position: relative;
+    width: 388px;
+    height: 188px;
+    border: 1px solid white;
+    display: flex;
+    color: white;
+    /*box-sizing: border-box; it will not cause incresing size of container, so border size will be unmoved while whit conte-box property it increases size of box*/
+}
+
+a {
+    color: inherit;
+    display: inline;
+    font-style: none;
+    text-decoration: none;
+}
+
+.text {
+    position: absolute;
+    display: inline-block;
+    margin: 5px;
+    mix-blend-mode: difference;
+}
+
+.top-left {
+    position: relative;
+    align-items: flex-start;
+    justify-content: flex-start;
+    transition: ease-out 0.3s;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.top-left:hover {
+    border: 1px dashed black;
+    color: black;
+}
+
+.top-left::before {
+    content: " ";
+    transition: 0.7s all ease;
+    position: absolute;
+    background-color: white;
+    width: 10px;
+    height: 10px;
+    opacity: 0;
+    left: -10px;
+    right: 0px;
+    top: -10px;
+    bottom: 0px;
+    border-radius: 50%;
+}
+
+.top-left:hover::before {
+    overflow: hidden;
+    z-index: -1;
+    opacity: 1;
+    left: 0;
+    right: 0;
+    bottom: 0px;
+    top: 0px;
+    transform: scale(96);
+}
+
+.top-center {
+    align-items: flex-start;
+    justify-content: center;
+    box-shadow: inset 0 0 0 0 white;
+    transition: ease-out 0.3s;
+}
+
+.top-center:hover {
+    box-shadow: inset 0 188px 0 0 white;
+    border: 1px dashed black;
+    color: black;
+}
+
+.top-right {
+    align-items: flex-start;
+    justify-content: flex-end;
+    position: relative;
+    transition: 0.3s ease-in-out;
+    overflow: hidden;
+}
+
+.top-right:hover {
+    border: 1px dashed black;
+    color: black;
+}
+
+.top-right::before {
+    content: " ";
+    transition: 0.5s all ease-out;
+    position: absolute;
+    background-color: white;
+    width: 10px;
+    height: 10px;
+    opacity: 0;
+    left: 110%;
+    right: 0px;
+    top: 0px;
+    bottom: 90%;
+    border-radius: 50%;
+}
+
+.top-right:hover::before {
+    overflow: hidden;
+    z-index: -1;
+    opacity: 1;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    top: 0px;
+    transform: scale(96);
+}
+
+.mid-left {
+    align-items: center;
+    justify-content: flex-start;
+    box-shadow: inset 0 0 0 0 white;
+    transition: ease-out 0.3s;
+}
+
+.mid-left:hover {
+    box-shadow: inset 388px 0 0 0 white;
+    border: 1px dashed black;
+    color: black;
+}
+
+.mid-center {
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+    transition: 0.5s all ease;
+}
+
+.mid-center:hover {
+    border: 1px dashed black;
+    color: black;
+}
+
+.mid-center::before {
+    content: " ";
+    transition: 0.5s all ease;
+    position: absolute;
+    background-color: white;
+    opacity: 0;
+    left: 50%;
+    right: 50%;
+    top: 0;
+    bottom: 0;
+}
+
+.mid-center:hover::before {
+    z-index: -1;
+    opacity: 1;
+    left: 0;
+    right: 0;
+}
+
+.mid-right {
+    align-items: center;
+    justify-content: flex-end;
+    box-shadow: inset 0 0 0 0 white;
+    transition: ease-out 0.3s;
+}
+
+.mid-right:hover {
+    box-shadow: inset -388px 0 0 0 white;
+    border: 1px dashed black;
+    color: black;
+}
+
+.bottom-left {
+    position: relative;
+    align-items: flex-end;
+    justify-content: flex-start;
+    transition: ease-out 0.3s;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.bottom-left:hover {
+    border: 1px dashed black;
+    color: black;
+}
+
+.bottom-left::before {
+    content: " ";
+    transition: 0.5s all ease;
+    position: absolute;
+    background-color: white;
+    width: 10px;
+    height: 10px;
+    opacity: 0;
+    left: -10px;
+    right: 0px;
+    top: 198px;
+    bottom: 0px;
+    border-radius: 50%;
+}
+
+.bottom-left:hover::before {
+    overflow: hidden;
+    z-index: -1;
+    opacity: 1;
+    left: 0;
+    right: 0;
+    bottom: 0px;
+    top: 0px;
+    transform: scale(96);
+}
+
+.bottom-center {
+    align-items: flex-end;
+    justify-content: center;
+    box-shadow: inset 0 0 0 0 white;
+    transition: ease-out 0.3s;
+}
+
+.bottom-center:hover {
+    box-shadow: inset 0 -188px 0 0 white;
+    border: 1px dashed black;
+    color: black;
+}
+
+.bottom-right {
+    position: relative;
+    align-items: flex-end;
+    justify-content: flex-end;
+    transition: ease-out 0.3s;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.bottom-right:hover {
+    border: 1px dashed black;
+    color: black;
+}
+
+.bottom-right::before {
+    content: " ";
+    transition: 0.7s all ease;
+    position: absolute;
+    background-color: white;
+    width: 10px;
+    height: 10px;
+    opacity: 0;
+    left: 388px;
+    right: 0px;
+    top: 188px;
+    bottom: 0px;
+    border-radius: 50%;
+}
+
+.bottom-right:hover::before {
+    overflow: hidden;
+    z-index: -1;
+    opacity: 1;
+    left: 0;
+    right: 0;
+    bottom: 0px;
+    top: 0px;
+    transform: scale(96);
+}
+
+.big-text {
+    z-index: 1;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    margin-right: auto;
+    margin-top: 0px;
+    margin-left: 0px;
+    font-size: 122px;
+    font-weight: bold;
+    color: rgba(0, 0, 0, 0);
+    transition: 0.3s linear;
+}
+
+.login {
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient( -30deg, #fffb1933, #ff003733);
+    -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text;
+    transition: all .3s linear;
+    opacity: 0;
+}
+
+.login:hover {
+    /*
+    color: #8a5f3c25
+    */
+    opacity: 1;
+}
+
+.sign-up {
+    justify-content: center;
+    align-items: center;
+    font-size: 102px;
+    background: linear-gradient( -30deg, #0059ff44, hsla(241, 100%, 50%, 0.267), rgba(68, 0, 255, 0.267));
+    -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text;
+    transition: all .3s linear;
+    opacity: 0;
+}
+
+.sign-up:hover {
+    opacity: 1;
+}
+
+.main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 150px;
+    background: black;
+    -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text;
+    transition: all .18s ease-in;
+    opacity: 0;
+    text-shadow: 0px 0px;
+}
+
+.main:hover {
+    opacity: 1;
+    color: black;
+}
+
+.about {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 124px;
+    background: linear-gradient(to right, rgb(219, 79, 44, 0.3), rgb(233, 170, 24, 0.3), rgb(138, 21, 25, 0.3));
+    -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text;
+    transition: all .3s ease-in;
+    opacity: 0;
+    text-shadow: 0px 0px;
+}
+
+.about:hover {
+    opacity: 1;
+    /*text-shadow: 0px 0px 10px #88ff0044;*/
+}
