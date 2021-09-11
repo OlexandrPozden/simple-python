@@ -1,4 +1,5 @@
 from werkzeug.wrappers import Request, Response
+from flask_jwt import JWT, jwt_required, current_identity
 
 # @Request.application
 # def application(request):
@@ -34,7 +35,6 @@ class Post(base):
     __tablename__ = 'posts'
     post_id = Column(Integer, primary_key=True, autoincrement=True)
     text = Column(String, nullable=False)
-
     def __repr__(self):
         return '<Post %r>' % self.post_id
 
@@ -60,8 +60,13 @@ class Application(object):
     def index(self,request):
         return self.render_template('index.html')
     def login(self,request):
+        if request.method == 'POST':
+            username = request.form.get('username','')
+            ## get username and password check if 
         return self.render_template('login.html')
     def main(self,request):
+        #self.update_post(10,"UPDATED TEXT")
+        #self.delete_post(4)
         posts=[]
         if request.method == 'POST':
             text = request.form['text']
@@ -71,14 +76,27 @@ class Application(object):
         return self.render_template('main.html', posts=posts)
     def signup(self,request):
         return self.render_template('signup.html')
+
+    def create_post(self,post:Post):
+        self.session.add(post)
+        self.session.commit()
     def read_posts(self):
         posts = self.session.query(Post)
         return [p for p in posts]
-
-    def post_text(self,text:str):
-        post = Post(text=text)
-        self.session.add(post)
+    def update_post(self, post_id:int, text:str):
+        try:
+            post = self.session.query(Post).filter_by(post_id=post_id).first()
+            post.text = text
+            self.session.commit()
+        except:
+            print("Post with post id: %s does not exist" % post_id)
+    def delete_post(self, post_id):
+        self.session.query(Post).filter_by(post_id=post_id).delete()
         self.session.commit()
+
+    def post_text(self,text):
+        post = Post(text=text)
+        self.create_post(post)
         return self.read_posts()
         
     def dispatch_request(self,request):
