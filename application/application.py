@@ -1,3 +1,4 @@
+from enum import unique
 from werkzeug.wrappers import Request, Response
 from flask_jwt import JWT, jwt_required, current_identity
 
@@ -22,10 +23,13 @@ from werkzeug.routing import Map, Rule, NotFound, RequestRedirect
 from werkzeug.exceptions import HTTPException, NotFound
 from werkzeug.middleware.shared_data import SharedDataMiddleware
 from werkzeug.utils import redirect
+from werkzeug.security import generate_password_hash, check_password_hash
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base  
 from sqlalchemy import Column, String, Integer  
+
 import os
 from jinja2 import Environment
 from jinja2 import FileSystemLoader
@@ -37,7 +41,14 @@ class Post(base):
     text = Column(String, nullable=False)
     def __repr__(self):
         return '<Post %r>' % self.post_id
-
+class User(base):
+    __tablename__ = 'users'
+    user_id = Column(Integer, primary_key=True, autoincrement=True)
+    username = Column(String, nullable=False, unique=True)
+    password = Column(String, nullable=False)
+    def __repr__(self):
+        return '<User %r>' % self.username
+        
 class Application(object):
     def __init__(self, config=None):
         engine = create_engine('sqlite:///test.db', echo=True)
@@ -62,7 +73,7 @@ class Application(object):
     def login(self,request):
         if request.method == 'POST':
             username = request.form.get('username','')
-            ## get username and password check if 
+            ## get username and password check if user is in database
         return self.render_template('login.html')
     def main(self,request):
         #self.update_post(10,"UPDATED TEXT")
