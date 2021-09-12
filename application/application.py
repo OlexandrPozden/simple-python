@@ -1,4 +1,6 @@
+from enum import unique
 from werkzeug.wrappers import Request, Response
+from flask_jwt import JWT, jwt_required, current_identity
 
 # @Request.application
 # def application(request):
@@ -21,10 +23,13 @@ from werkzeug.routing import Map, Rule, NotFound, RequestRedirect
 from werkzeug.exceptions import HTTPException, NotFound
 from werkzeug.middleware.shared_data import SharedDataMiddleware
 from werkzeug.utils import redirect
+from werkzeug.security import generate_password_hash, check_password_hash
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base  
 from sqlalchemy import Column, String, Integer  
+
 import os
 from jinja2 import Environment
 from jinja2 import FileSystemLoader
@@ -34,9 +39,15 @@ class Post(base):
     __tablename__ = 'posts'
     post_id = Column(Integer, primary_key=True, autoincrement=True)
     text = Column(String, nullable=False)
-
     def __repr__(self):
         return '<Post %r>' % self.post_id
+class User(base):
+    __tablename__ = 'users'
+    user_id = Column(Integer, primary_key=True, autoincrement=True)
+    username = Column(String, nullable=False, unique=True)
+    password = Column(String, nullable=False)
+    def __repr__(self):
+        return '<User %r>' % self.username
 
 class Application(object):
     def __init__(self, config=None):
@@ -60,8 +71,16 @@ class Application(object):
     def index(self,request):
         return self.render_template('index.html')
     def login(self,request):
+        if request.method == 'POST':
+            username = request.form.get('username','')
+            password = request.form.get('password','')
+            if username=='bla' and password=="bla":
+                ## get username and password check if user is in database
+                return redirect('/main')
         return self.render_template('login.html')
     def main(self,request):
+        #self.update_post(10,"UPDATED TEXT")
+        #self.delete_post(4)
         posts=[]
         if request.method == 'POST':
             text = request.form['text']
@@ -70,15 +89,46 @@ class Application(object):
             posts = self.read_posts()
         return self.render_template('main.html', posts=posts)
     def signup(self,request):
+        error = ''
+        if request.method == 'POST':
+            username = request.form['username']
+            password = request.form['password']
+            ## check if user already exist
+            ## if not register new one
+            user = self.session.query(User).filter_by(username=username).first()
+            if user:
+                ## need some flash to show this
+                print("User already registered")
+                return self.render_template('signup.html', error=error)
+            else:
+                new_user = User(username=username, password=generate_password_hash(password, method='sha256'))
+                self.add_user(new_user)
+                print("redirecting")
+                return redirect('http://localhost:5000/main')
         return self.render_template('signup.html')
+    def add_user(self, user:User)-> None:
+        self.session.add(user)
+        self.session.commit()
+    def create_post(self,post:Post):
+        self.session.add(post)
+        self.session.commit()
     def read_posts(self):
         posts = self.session.query(Post)
         return [p for p in posts]
-
-    def post_text(self,text:str):
-        post = Post(text=text)
-        self.session.add(post)
+    def update_post(self, post_id:int, text:str):
+        try:
+            post = self.session.query(Post).filter_by(post_id=post_id).first()
+            post.text = text
+            self.session.commit()
+        except:
+            print("Post with post id: %s does not exist" % post_id)
+    def delete_post(self, post_id):
+        self.session.query(Post).filter_by(post_id=post_id).delete()
         self.session.commit()
+
+    def post_text(self,text):
+        post = Post(text=text)
+        self.create_post(post)
         return self.read_posts()
         
     def dispatch_request(self,request):
