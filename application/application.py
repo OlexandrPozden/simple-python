@@ -48,7 +48,7 @@ class User(base):
     password = Column(String, nullable=False)
     def __repr__(self):
         return '<User %r>' % self.username
-        
+
 class Application(object):
     def __init__(self, config=None):
         engine = create_engine('sqlite:///test.db', echo=True)
@@ -73,7 +73,10 @@ class Application(object):
     def login(self,request):
         if request.method == 'POST':
             username = request.form.get('username','')
-            ## get username and password check if user is in database
+            password = request.form.get('password','')
+            if username=='bla' and password=="bla":
+                ## get username and password check if user is in database
+                return redirect('/main')
         return self.render_template('login.html')
     def main(self,request):
         #self.update_post(10,"UPDATED TEXT")
@@ -86,8 +89,26 @@ class Application(object):
             posts = self.read_posts()
         return self.render_template('main.html', posts=posts)
     def signup(self,request):
+        error = ''
+        if request.method == 'POST':
+            username = request.form['username']
+            password = request.form['password']
+            ## check if user already exist
+            ## if not register new one
+            user = self.session.query(User).filter_by(username=username).first()
+            if user:
+                ## need some flash to show this
+                print("User already registered")
+                return self.render_template('signup.html', error=error)
+            else:
+                new_user = User(username=username, password=generate_password_hash(password, method='sha256'))
+                self.add_user(new_user)
+                print("redirecting")
+                return redirect('http://localhost:5000/main')
         return self.render_template('signup.html')
-
+    def add_user(self, user:User)-> None:
+        self.session.add(user)
+        self.session.commit()
     def create_post(self,post:Post):
         self.session.add(post)
         self.session.commit()
