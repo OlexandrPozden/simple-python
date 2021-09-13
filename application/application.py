@@ -71,13 +71,19 @@ class Application(object):
     def index(self,request):
         return self.render_template('index.html')
     def login(self,request):
+        error=""
         if request.method == 'POST':
             username = request.form.get('username','')
             password = request.form.get('password','')
-            if username=='bla' and password=="bla":
-                ## get username and password check if user is in database
+
+            user = self.session.query(User).filter_by(username=username).first()
+            if not user or not check_password_hash(user.password, password): 
+                error = "Wrong credentials."
+                return self.render_template('login.html', error=error)
+            else:
+                ## return token and render template
                 return redirect('/main')
-        return self.render_template('login.html')
+        return self.render_template('login.html', error=error)
     def main(self,request):
         #self.update_post(10,"UPDATED TEXT")
         #self.delete_post(4)
@@ -98,13 +104,12 @@ class Application(object):
             user = self.session.query(User).filter_by(username=username).first()
             if user:
                 ## need some flash to show this
-                print("User already registered")
+                error = "User already registered. Please, use another username."
                 return self.render_template('signup.html', error=error)
             else:
                 new_user = User(username=username, password=generate_password_hash(password, method='sha256'))
                 self.add_user(new_user)
-                print("redirecting")
-                return redirect('http://localhost:5000/main')
+                return redirect('/main')
         return self.render_template('signup.html')
     def add_user(self, user:User)-> None:
         self.session.add(user)
