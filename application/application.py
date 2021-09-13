@@ -82,7 +82,9 @@ class Application(object):
                 return self.render_template('login.html', error=error)
             else:
                 ## return token and render template
-                return redirect('/main')
+                response = redirect('/main')
+                response.set_cookie("mycookie","oreo")
+                return response
         return self.render_template('login.html', error=error)
     def main(self,request):
         #self.update_post(10,"UPDATED TEXT")
