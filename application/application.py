@@ -97,8 +97,7 @@ class Application(object):
                 error = "Can not post empty string. Type something."
             else:
                 posts = self.post_text(text) 
-        else:
-            posts = self.read_posts()
+        posts = self.read_posts()
         return self.render_template('main.html', posts=posts, error=error)
     def signup(self,request):
         error = ''
