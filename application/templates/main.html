@@ -17,6 +17,7 @@
                 <input type="submit" value="Submit" class="submit">
             </div>
         </form>
+        <p id="error">{% if error %}{{ error }}{% endif %}</p>
         {% if posts %}
         <div class="posts">
             <ol>

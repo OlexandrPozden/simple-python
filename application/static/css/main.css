@@ -92,3 +92,8 @@ form {
     padding-left: 8px;
     outline-color: white;
 }
+
+#error {
+    font-size: 12px;
+    color: rgb(247, 67, 67);
+}

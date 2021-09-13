@@ -89,13 +89,17 @@ class Application(object):
     def main(self,request):
         #self.update_post(10,"UPDATED TEXT")
         #self.delete_post(4)
+        error = ""
         posts=[]
         if request.method == 'POST':
             text = request.form['text']
-            posts = self.post_text(text)
+            if not text:
+                error = "Can not post empty string. Type something."
+            else:
+                posts = self.post_text(text) 
         else:
             posts = self.read_posts()
-        return self.render_template('main.html', posts=posts)
+        return self.render_template('main.html', posts=posts, error=error)
     def signup(self,request):
         error = ''
         if request.method == 'POST':
