@@ -1,6 +1,4 @@
-from enum import unique
 from werkzeug.wrappers import Request, Response
-from flask_jwt import JWT, jwt_required, current_identity
 
 # @Request.application
 # def application(request):
@@ -35,6 +33,8 @@ import os
 from jinja2 import Environment
 from jinja2 import FileSystemLoader
 
+import jwt
+
 base = declarative_base()
 class Post(base):
     __tablename__ = 'posts'
@@ -59,6 +59,29 @@ class User(base):
         if self.admin:
             return '<Admin %r>' % self.username
         return '<User %r>' % self.username
+SECRET_KEY = 'k4Ndh1r6af5SZVnGitY82lpjK646apEnOAnc5lhW'
+def is_authenticated(request)->Boolean:
+    return False
+def login_required(fun):
+    def wrapper(*args, **kwargs):
+        print(args[1].path)
+        if is_authenticated(args[1]):
+            return fun(*args)
+        else:
+            return redirect('/login')
+    return wrapper
+def create_token(payload):
+    payload['exp'] = datetime.datetime.now()+datetime.timedelta(seconds=10)
+    token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
+    return token
+
+def user_from_token(token):
+    payload = {}
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms="HS256")
+    except:
+        return ''
+    return payload['username']
 
 class Application(object):
     def __init__(self, config=None):
@@ -77,6 +100,7 @@ class Application(object):
                 Rule("/login", endpoint="login"),
                 Rule("/main", endpoint="main"),
                 Rule('/signup', endpoint="signup"),
+                Rule('/admin', endpoint="admin"),
             ]
         )
     def index(self,request):
@@ -93,10 +117,14 @@ class Application(object):
                 return self.render_template('login.html', error=error)
             else:
                 ## return token and render template
+                token = create_token({'username':username})
                 response = redirect('/main')
-                response.set_cookie("mycookie","oreo")
+                response.set_cookie("token",token)
                 return response
         return self.render_template('login.html', error=error)
+    @login_required
+    def admin(self,request):
+        return Response('Admin page')
     def main(self,request):
         #self.update_post(10,"UPDATED TEXT")
         #self.delete_post(4)
@@ -109,7 +137,10 @@ class Application(object):
             else:
                 posts = self.post_text(text) 
         posts = self.read_posts()
-        return self.render_template('main.html', posts=posts, error=error)
+        token = request.cookies.get('token','')
+        username = user_from_token(token)
+        return self.render_template('main.html', posts=posts, error=error, username=username)
+    
     def signup(self,request):
         error = ''
         if request.method == 'POST':
@@ -128,6 +159,9 @@ class Application(object):
                 return redirect('/main')
         return self.render_template('signup.html')
     def create_admin(self,username:str, password:str)->None:
+        ## hash password
+        password = generate_password_hash(password, method='sha256') 
+        print('Creating <admin %r>...'%username)
         admin = User(username=username, password=password, admin=True)
         self.add_user(admin)
     def add_user(self, user:User)-> None:
@@ -161,6 +195,7 @@ class Application(object):
             "login":self.login,
             "main":self.main,
             "signup":self.signup,
+            "admin":self.admin,
         }
         adapter = self.url_map.bind_to_environ(request.environ)
         try:
@@ -181,10 +216,8 @@ class Application(object):
 
 def create_app(with_static=True):
     app = Application()
-    app.create_admin("Valera","123")
     if with_static:
         app.wsgi_app = SharedDataMiddleware(
             app.wsgi_app, {"/static": os.path.join(os.path.dirname(__file__), "static")}
         )
     return app
-application = create_app()

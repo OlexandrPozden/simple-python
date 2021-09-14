@@ -1,4 +1,4 @@
-from .application import application
+from .application import create_app
 
 def make_app():
-    return application
+    return create_app()
