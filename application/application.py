@@ -28,8 +28,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base  
-from sqlalchemy import Column, String, Integer  
+from sqlalchemy import Column, String, Integer, Boolean, Date, DateTime, ForeignKey  
 
+import datetime
 import os
 from jinja2 import Environment
 from jinja2 import FileSystemLoader
@@ -39,14 +40,24 @@ class Post(base):
     __tablename__ = 'posts'
     post_id = Column(Integer, primary_key=True, autoincrement=True)
     text = Column(String, nullable=False)
+    user_id = Column(Integer, ForeignKey('users.user_id', ondelete="DELETE"))
+    published = Column(Boolean, default=False, nullable=False)
+    request_publish = Column(Boolean, default=False, nullable=False)
+    published_time = Column(DateTime)
+    created_time = Column(DateTime, default=datetime.datetime.now, nullable=False)
+    updated_time = Column(DateTime, default=datetime.datetime.now, nullable=False)
     def __repr__(self):
         return '<Post %r>' % self.post_id
+
 class User(base):
     __tablename__ = 'users'
     user_id = Column(Integer, primary_key=True, autoincrement=True)
     username = Column(String, nullable=False, unique=True)
     password = Column(String, nullable=False)
+    admin = Column(Boolean, nullable=False, default=False)
     def __repr__(self):
+        if self.admin:
+            return '<Admin %r>' % self.username
         return '<User %r>' % self.username
 
 class Application(object):
