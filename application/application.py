@@ -62,7 +62,7 @@ class User(base):
 
 class Application(object):
     def __init__(self, config=None):
-        engine = create_engine('sqlite:///test.db', echo=True)
+        engine = create_engine('sqlite:///test.db', echo=False)
         Session = sessionmaker(engine)  
         self.session = Session()
         base.metadata.create_all(engine)
@@ -127,6 +127,9 @@ class Application(object):
                 self.add_user(new_user)
                 return redirect('/main')
         return self.render_template('signup.html')
+    def create_admin(self,username:str, password:str)->None:
+        admin = User(username=username, password=password, admin=True)
+        self.add_user(admin)
     def add_user(self, user:User)-> None:
         self.session.add(user)
         self.session.commit()
@@ -178,6 +181,7 @@ class Application(object):
 
 def create_app(with_static=True):
     app = Application()
+    app.create_admin("Valera","123")
     if with_static:
         app.wsgi_app = SharedDataMiddleware(
             app.wsgi_app, {"/static": os.path.join(os.path.dirname(__file__), "static")}

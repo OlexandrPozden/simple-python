@@ -7,6 +7,3 @@ class Post(base):
 
 class User(base):
     pass
-
-class Admin(User):
-    pass
