@@ -13,8 +13,13 @@
         <form action="" method="POST" enctype="application/json">
             <label for="text">Text</label>
             <input type="text" name="text" id="text" placeholder="enter somethin">
-            <input type="submit" />
+            <div class="submit-cover">
+                <input type="submit" value="Submit" class="submit">
+            </div>
         </form>
+        <p id="error">{% if error %}{{ error }}{% endif %}</p>
+
+        <p id="error">{% if username %}{{ username }}{% endif %}</p>
         {% if posts %}
         <div class="posts">
             <ol>
@@ -30,6 +35,7 @@
 
         </div>
         {% endif %}
+
     </div>
 </body>
 

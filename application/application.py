@@ -1,6 +1,5 @@
-from enum import unique
+from sqlalchemy.sql.functions import user
 from werkzeug.wrappers import Request, Response
-from flask_jwt import JWT, jwt_required, current_identity
 
 # @Request.application
 # def application(request):
@@ -28,30 +27,81 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base  
-from sqlalchemy import Column, String, Integer  
+from sqlalchemy import Column, String, Integer, Boolean, Date, DateTime, ForeignKey  
 
+import datetime
 import os
 from jinja2 import Environment
 from jinja2 import FileSystemLoader
+
+import jwt
 
 base = declarative_base()
 class Post(base):
     __tablename__ = 'posts'
     post_id = Column(Integer, primary_key=True, autoincrement=True)
     text = Column(String, nullable=False)
+    user_id = Column(Integer, ForeignKey('users.user_id', ondelete="DELETE"))
+    published = Column(Boolean, default=False, nullable=False)
+    request_publish = Column(Boolean, default=False, nullable=False)
+    published_time = Column(DateTime)
+    created_time = Column(DateTime, default=datetime.datetime.now, nullable=False)
+    updated_time = Column(DateTime, default=datetime.datetime.now, nullable=False)
     def __repr__(self):
         return '<Post %r>' % self.post_id
+
 class User(base):
     __tablename__ = 'users'
     user_id = Column(Integer, primary_key=True, autoincrement=True)
     username = Column(String, nullable=False, unique=True)
     password = Column(String, nullable=False)
+    admin = Column(Boolean, nullable=False, default=False)
     def __repr__(self):
+        if self.admin:
+            return '<Admin %r>' % self.username
         return '<User %r>' % self.username
+SECRET_KEY = 'k4Ndh1r6af5SZVnGitY82lpjK646apEnOAnc5lhW'
+def is_authenticated(self,request)->Boolean:
+    token = request.cookies.get('token', None)
+    if token:
+        payload = payload_from_token(token)
+        if payload:
+            user_id = payload.get('user_id','')
+            username = payload.get('username','')
+            user = self.get_user_by_id(user_id)
+            if user.username == username:
+                return True
+    return False
+
+def login_required(fun):
+    def wrapper(*args, **kwargs):
+        self = args[0]
+        request = args[1]
+        if is_authenticated(self,request):
+            return fun(*args)
+        else:
+            self.turn_back_to = request.path
+            return redirect('/login')
+    return wrapper
+def create_token(payload):
+    payload['exp'] = datetime.datetime.utcnow()+datetime.timedelta(seconds=10)
+    token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
+    return token
+
+def payload_from_token(token):
+    payload = {}
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+        print("Token is still valid and active")
+    except jwt.ExpiredSignatureError:
+        print("Token expired. Get new one")
+    except jwt.InvalidTokenError:
+        print("Invalid Token")
+    return payload
 
 class Application(object):
     def __init__(self, config=None):
-        engine = create_engine('sqlite:///test.db', echo=True)
+        engine = create_engine('sqlite:///test.db', echo=False)
         Session = sessionmaker(engine)  
         self.session = Session()
         base.metadata.create_all(engine)
@@ -66,28 +116,59 @@ class Application(object):
                 Rule("/login", endpoint="login"),
                 Rule("/main", endpoint="main"),
                 Rule('/signup', endpoint="signup"),
+                Rule('/admin', endpoint="admin"),
             ]
         )
+        self.turn_back_to = "" ## turn back to page where user was redirected from
+    @property
+    def path_to_turn_back(self):
+        if self.turn_back_to:
+            path = self.turn_back_to
+            self.turn_back_to = ""
+            return path
+        return self.turn_back_to
+    def login_user(self, user_id,username):
+        token = create_token({'user_id':user_id,'username':username})
+        response = redirect(self.path_to_turn_back or '/main')
+        response.set_cookie("token",token)
+        return response
     def index(self,request):
         return self.render_template('index.html')
     def login(self,request):
+        error=""
         if request.method == 'POST':
             username = request.form.get('username','')
             password = request.form.get('password','')
-            if username=='bla' and password=="bla":
-                ## get username and password check if user is in database
-                return redirect('/main')
-        return self.render_template('login.html')
+
+            user = self.get_user_by_name(username)
+            if not user or not check_password_hash(user.password, password): 
+                error = "Wrong credentials."
+                return self.render_template('login.html', error=error)
+            else:
+                ## return token and render template
+                response = self.login_user(user.user_id,user.username)
+                return response
+        return self.render_template('login.html', error=error)
+    @login_required
+    def admin(self,request):
+        return Response('Admin page')
     def main(self,request):
         #self.update_post(10,"UPDATED TEXT")
         #self.delete_post(4)
+        error = ""
         posts=[]
         if request.method == 'POST':
             text = request.form['text']
-            posts = self.post_text(text)
-        else:
-            posts = self.read_posts()
-        return self.render_template('main.html', posts=posts)
+            if not text:
+                error = "Can not post empty string. Type something."
+            else:
+                posts = self.post_text(text) 
+        posts = self.read_posts()
+        token = request.cookies.get('token','')
+        payload = payload_from_token(token)
+        username = payload.get('username','')
+        return self.render_template('main.html', posts=posts, error=error, username=username)
+    
     def signup(self,request):
         error = ''
         if request.method == 'POST':
@@ -98,14 +179,23 @@ class Application(object):
             user = self.session.query(User).filter_by(username=username).first()
             if user:
                 ## need some flash to show this
-                print("User already registered")
+                error = "User already registered. Please, use another username."
                 return self.render_template('signup.html', error=error)
             else:
                 new_user = User(username=username, password=generate_password_hash(password, method='sha256'))
                 self.add_user(new_user)
-                print("redirecting")
-                return redirect('http://localhost:5000/main')
+                return redirect('/main')
         return self.render_template('signup.html')
+    def create_admin(self,username:str, password:str)->None:
+        ## hash password
+        password = generate_password_hash(password, method='sha256') 
+        print('Creating <admin %r>...'%username)
+        admin = User(username=username, password=password, admin=True)
+        self.add_user(admin)
+    def get_user_by_id(self, id):
+        return self.session.query(User).filter_by(user_id=id).first()
+    def get_user_by_name(self, name):
+        return self.session.query(User).filter_by(username=name).first()
     def add_user(self, user:User)-> None:
         self.session.add(user)
         self.session.commit()
@@ -137,6 +227,7 @@ class Application(object):
             "login":self.login,
             "main":self.main,
             "signup":self.signup,
+            "admin":self.admin,
         }
         adapter = self.url_map.bind_to_environ(request.environ)
         try:
@@ -162,4 +253,3 @@ def create_app(with_static=True):
             app.wsgi_app, {"/static": os.path.join(os.path.dirname(__file__), "static")}
         )
     return app
-application = create_app()

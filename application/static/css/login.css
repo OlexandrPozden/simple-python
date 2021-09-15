@@ -258,7 +258,6 @@ form .input-div label::after {
 .submit {
     width: 100%;
     height: 100%;
-    background-color: orange;
     outline: none;
     border: none;
     pointer-events: all;

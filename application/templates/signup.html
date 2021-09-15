@@ -6,7 +6,7 @@
 </head>
 
 <body>
-    {% if error %} {{ error }} {% endif %}
+
     <div class="main">
         <h1><span class="l1">S</span><span class="l2">i</span><span class="l3">g</span><span class="l4">n u</span><span class="l5">p</span></h1>
         <form method="POST" id="form">
@@ -25,7 +25,7 @@
                     <span class="content-input">Repeat password</span>
                 </label>
             </div>
-            <p id="error"></p>
+            <p id="error">{% if error %}{{ error }}{% endif %}</p>
             <div class="submit-cover">
                 <input type="submit" value="Submit" class="submit">
             </div>
