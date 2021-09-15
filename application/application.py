@@ -85,7 +85,7 @@ def login_required(fun):
             return redirect('/login')
     return wrapper
 def create_token(payload):
-    payload['exp'] = datetime.datetime.utcnow()+datetime.timedelta(seconds=10)
+    payload['exp'] = datetime.datetime.utcnow()+datetime.timedelta(minutes=300)
     token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
     return token
 
