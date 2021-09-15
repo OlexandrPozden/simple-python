@@ -84,12 +84,11 @@ def login_required(fun):
             return redirect('/login')
     return wrapper
 def create_token(payload):
-    payload['exp'] = datetime.datetime.now()+datetime.timedelta(seconds=10)
+    payload['exp'] = datetime.datetime.utcnow()+datetime.timedelta(seconds=10)
     token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
     return token
 
 def payload_from_token(token):
-    print("test with wrong token")
     payload = {}
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
