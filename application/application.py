@@ -1,3 +1,4 @@
+from sqlalchemy.sql.functions import user
 from werkzeug.wrappers import Request, Response
 
 # @Request.application
@@ -60,14 +61,26 @@ class User(base):
             return '<Admin %r>' % self.username
         return '<User %r>' % self.username
 SECRET_KEY = 'k4Ndh1r6af5SZVnGitY82lpjK646apEnOAnc5lhW'
-def is_authenticated(request)->Boolean:
+def is_authenticated(self,request)->Boolean:
+    token = request.cookies.get('token', None)
+    if token:
+        payload = payload_from_token(token)
+        if payload:
+            user_id = payload.get('user_id','')
+            username = payload.get('username','')
+            user = self.get_user_by_id(user_id)
+            if user.username == username:
+                return True
     return False
+
 def login_required(fun):
     def wrapper(*args, **kwargs):
-        print(args[1].path)
-        if is_authenticated(args[1]):
+        self = args[0]
+        request = args[1]
+        if is_authenticated(self,request):
             return fun(*args)
         else:
+            self.turn_back_to = request.path
             return redirect('/login')
     return wrapper
 def create_token(payload):
@@ -75,13 +88,17 @@ def create_token(payload):
     token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
     return token
 
-def user_from_token(token):
+def payload_from_token(token):
+    print("test with wrong token")
     payload = {}
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms="HS256")
-    except:
-        return ''
-    return payload['username']
+        payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+        print("Token is still valid and active")
+    except jwt.ExpiredSignatureError:
+        print("Token expired. Get new one")
+    except jwt.InvalidTokenError:
+        print("Invalid Token")
+    return payload
 
 class Application(object):
     def __init__(self, config=None):
@@ -103,6 +120,19 @@ class Application(object):
                 Rule('/admin', endpoint="admin"),
             ]
         )
+        self.turn_back_to = "" ## turn back to page where user was redirected from
+    @property
+    def path_to_turn_back(self):
+        if self.turn_back_to:
+            path = self.turn_back_to
+            self.turn_back_to = ""
+            return path
+        return self.turn_back_to
+    def login_user(self, user_id,username):
+        token = create_token({'user_id':user_id,'username':username})
+        response = redirect(self.path_to_turn_back or '/main')
+        response.set_cookie("token",token)
+        return response
     def index(self,request):
         return self.render_template('index.html')
     def login(self,request):
@@ -111,15 +141,13 @@ class Application(object):
             username = request.form.get('username','')
             password = request.form.get('password','')
 
-            user = self.session.query(User).filter_by(username=username).first()
+            user = self.get_user_by_name(username)
             if not user or not check_password_hash(user.password, password): 
                 error = "Wrong credentials."
                 return self.render_template('login.html', error=error)
             else:
                 ## return token and render template
-                token = create_token({'username':username})
-                response = redirect('/main')
-                response.set_cookie("token",token)
+                response = self.login_user(user.user_id,user.username)
                 return response
         return self.render_template('login.html', error=error)
     @login_required
@@ -138,7 +166,8 @@ class Application(object):
                 posts = self.post_text(text) 
         posts = self.read_posts()
         token = request.cookies.get('token','')
-        username = user_from_token(token)
+        payload = payload_from_token(token)
+        username = payload.get('username','')
         return self.render_template('main.html', posts=posts, error=error, username=username)
     
     def signup(self,request):
@@ -164,6 +193,10 @@ class Application(object):
         print('Creating <admin %r>...'%username)
         admin = User(username=username, password=password, admin=True)
         self.add_user(admin)
+    def get_user_by_id(self, id):
+        return self.session.query(User).filter_by(user_id=id).first()
+    def get_user_by_name(self, name):
+        return self.session.query(User).filter_by(username=name).first()
     def add_user(self, user:User)-> None:
         self.session.add(user)
         self.session.commit()
