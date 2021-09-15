@@ -40,6 +40,7 @@ base = declarative_base()
 class Post(base):
     __tablename__ = 'posts'
     post_id = Column(Integer, primary_key=True, autoincrement=True)
+    title = Column(String)
     text = Column(String, nullable=False)
     user_id = Column(Integer, ForeignKey('users.user_id', ondelete="DELETE"))
     published = Column(Boolean, default=False, nullable=False)
