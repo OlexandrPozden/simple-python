@@ -115,6 +115,9 @@ class Application(object):
                 Rule('/signup', endpoint="signup"),
                 Rule('/admin', endpoint="admin"),
                 Rule('/logout', endpoint="logout"),
+                Rule('post/<int:post_id>', endpoint="post"),
+                Rule('post/<int:post_id>/edit', endpoint="post/edit"),
+                Rule('post/new', endpoint="post/new"),
             ]
         )
         self.turn_back_to = "" ## turn back to page where user was redirected from
@@ -178,8 +181,6 @@ class Application(object):
     def admin(self,request):
         return Response('Admin page')
     def main(self,request):
-        #self.update_post(10,"UPDATED TEXT")
-        #self.delete_post(4)
         error = ""
         posts=[]
         if request.method == 'POST':
@@ -265,6 +266,8 @@ class Application(object):
         try:
             endpoint, values = adapter.match()
             return endpoint_to_views[endpoint](request)
+        except NotFound:
+            return self.render_template('404.html')
         except HTTPException as e:
             return e    
     def dispatch_request(self,request):
