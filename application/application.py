@@ -1,6 +1,8 @@
 from sqlalchemy.sql.functions import user
 from werkzeug.wrappers import Request, Response
 
+SECRET_KEY = 'k4Ndh1r6af5SZVnGitY82lpjK646apEnOAnc5lhW'
+
 # @Request.application
 # def application(request):
 #     return Response(f"Hello {request.args.get('name', 'World!')}!")
@@ -61,7 +63,6 @@ class User(base):
         if self.admin:
             return '<Admin %r>' % self.username
         return '<User %r>' % self.username
-SECRET_KEY = 'k4Ndh1r6af5SZVnGitY82lpjK646apEnOAnc5lhW'
 
 def admin_required(fun):
     def wrapper(*args, **kwargs):

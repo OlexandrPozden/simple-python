@@ -190,7 +190,7 @@ a {
     align-items: center;
     justify-content: flex-end;
     box-shadow: inset 0 0 0 0 white;
-    transition: ease-out 0.3s;
+    transition: ease-out 0.5s;
 }
 
 .mid-right:hover {
@@ -303,24 +303,28 @@ a {
     font-size: 122px;
     font-weight: bold;
     color: rgba(0, 0, 0, 0);
-    transition: 0.3s linear;
 }
 
 .login {
     justify-content: center;
     align-items: center;
-    background: linear-gradient( -30deg, #fffb1933, #ff003733);
+    color: transparent;
+    transition-delay: 0.3s;
+    /*background: linear-gradient( -30deg, #fffb1933, #ff003733);
     -webkit-text-fill-color: transparent;
     -webkit-background-clip: text;
     transition: all .3s linear;
-    opacity: 0;
+    opacity: 0;*/
 }
 
 .login:hover {
     /*
     color: #8a5f3c25
     */
-    opacity: 1;
+    /*
+    opacity: 1;*/
+    color: #f39135;
+    transition-delay: 0s;
 }
 
 .sign-up {

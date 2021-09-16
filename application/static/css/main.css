@@ -15,9 +15,7 @@ body {
     border-style: none;
     width: 1200px;
     height: 600px;
-    display: grid;
     padding: 9px;
-    gap: 9px;
 }
 
 .posts {
