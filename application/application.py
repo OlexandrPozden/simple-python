@@ -118,8 +118,8 @@ class Application(object):
             ]
         )
         self.turn_back_to = "" ## turn back to page where user was redirected from
-        self.is_logged_in = False 
-        self.is_admin = False
+        
+        self.identity = None ## <class 'User'> if logged in
 
     ## custom functions
     @property
@@ -136,8 +136,7 @@ class Application(object):
         return response
     def logout_user(self, response:Response)->Response:
         if self.is_logged_in:
-            self.is_logged_in = False
-            self.is_admin = False
+            self.identity = None
             response.delete_cookie("token")
         return response
     def _create_payload_from_user(self, user:User)->dict:
@@ -152,8 +151,7 @@ class Application(object):
                 user = self.get_user_by_id(user_id)
                 if user:
                     if user.username == username:
-                        self.is_logged_in = True
-                        self.is_admin = user.admin
+                        self.identity = user
 
 
     ## views     
@@ -171,11 +169,11 @@ class Application(object):
                 return self.render_template('login.html', error=error)
             else:
                 ## return token and render template
-                response = self.login_user(user.user_id,user.username)
+                response = self.login_user(user)
                 return response
         return self.render_template('login.html', error=error)
     def logout(self,request):
-        return self.login_user(self.render_template('main.html'))
+        return self.logout_user(redirect('/'))
     @admin_required
     def admin(self,request):
         return Response('Admin page')
