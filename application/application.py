@@ -46,8 +46,8 @@ class Post(base):
     published = Column(Boolean, default=False, nullable=False)
     request_publish = Column(Boolean, default=False, nullable=False)
     published_time = Column(DateTime)
-    created_time = Column(DateTime, default=datetime.datetime.now, nullable=False)
-    updated_time = Column(DateTime, default=datetime.datetime.now, nullable=False)
+    created_time = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
+    updated_time = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
     def __repr__(self):
         return '<Post %r>' % self.post_id
 
@@ -116,6 +116,7 @@ class Application(object):
                 Rule('/signup', endpoint="signup"),
                 Rule('/admin', endpoint="admin"),
                 Rule('/logout', endpoint="logout"),
+                Rule('/post', endpoint="main"),
                 Rule('/post/<int:post_id>', endpoint="post"),
                 Rule('/post/<int:post_id>/edit', endpoint="post/edit"),
                 Rule('/post/new', endpoint="post/new"),
@@ -183,17 +184,11 @@ class Application(object):
         return Response('Admin page')
     def main(self,request):
         error = ""
-        posts=[]
-        if request.method == 'POST':
-            text = request.form['text']
-            if not text:
-                error = "Can not post empty string. Type something."
-            else:
-                posts = self.post_text(text) 
+        username = None
         posts = self.read_posts()
-        token = request.cookies.get('token','')
-        payload = payload_from_token(token)
-        username = payload.get('username','')
+
+        if self.identity:
+            username = self.identity.username
         return self.render_template('main.html', posts=posts, error=error, username=username)
     
     def signup(self,request):
@@ -214,7 +209,25 @@ class Application(object):
                 response = self.login_user(new_user) ## method login_user already returns response
                 return response
         return self.render_template('signup.html')
-
+    @login_required
+    def post_new(self, request):
+        if request.method == 'POST':
+            pass ## post post
+        return self.render_template('new_post.html',post=None)
+    @login_required
+    def post_edit(self, request, post_id):
+        post = self.get_post(post_id)
+        if post:
+            ## is author of that post
+            if post.user_id == self.identity.user_id: 
+                return self.render_template('new_post.html', post=post)
+        return self.render_template('404.html')
+    @login_required
+    def post(self, request, post_id):
+        post = self.read_post(post_id)
+        if post: 
+            return self.render_template('post.html', post=post)
+        return self.render_template('404.html')
 
     ## database calls
     def create_admin(self,username:str, password:str)->None:
@@ -230,27 +243,26 @@ class Application(object):
     def add_user(self, user:User)-> None:
         self.session.add(user)
         self.session.commit()
-    def create_post(self,post:Post):
+    def get_post(self, post_id):
+        post = self.session.query(Post).filter(post_id==post_id).first()
+        return post
+    def post_post(self,post:Post)->None:
         self.session.add(post)
         self.session.commit()
     def read_posts(self):
         posts = self.session.query(Post)
         return [p for p in posts]
-    def update_post(self, post_id:int, text:str): ## deprecated
+    def update_post(self, post:Post): ## deprecated
+        post_id = post.post_id
         try:
-            post = self.session.query(Post).filter_by(post_id=post_id).first()
-            post.text = text
+            old_post = self.session.query(Post).filter_by(post_id=post_id).first()
+            old_post = post
             self.session.commit()
         except:
             print("Post with post id: %s does not exist" % post_id)
     def delete_post(self, post_id):
         self.session.query(Post).filter_by(post_id=post_id).delete()
         self.session.commit()
-
-    def post_text(self,text): ## deprecated
-        post = Post(text=text)
-        self.create_post(post)
-        return self.read_posts()
 
 
     ## additional server functionality
@@ -262,11 +274,14 @@ class Application(object):
             "signup":self.signup,
             "admin":self.admin,
             "logout":self.logout,
+            "post/new":self.post_new,
+            "post/edit":self.post_edit,
+            "post": self.post,
         }
         adapter = self.url_map.bind_to_environ(request.environ)
         try:
             endpoint, values = adapter.match()
-            return endpoint_to_views[endpoint](request)
+            return endpoint_to_views[endpoint](request,*values)
         except NotFound:
             return self.render_template('404.html')
         except HTTPException as e:
