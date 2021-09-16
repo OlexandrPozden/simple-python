@@ -62,30 +62,26 @@ class User(base):
             return '<Admin %r>' % self.username
         return '<User %r>' % self.username
 SECRET_KEY = 'k4Ndh1r6af5SZVnGitY82lpjK646apEnOAnc5lhW'
-def is_authenticated(self,request)->Boolean:
-    token = request.cookies.get('token', None)
-    if token:
-        payload = payload_from_token(token)
-        if payload:
-            user_id = payload.get('user_id','')
-            username = payload.get('username','')
-            user = self.get_user_by_id(user_id)
-            if user.username == username:
-                return True
-    return False
 
-def login_required(fun):
+def admin_required(fun):
+    def wrapper(*args, **kwargs):
+        self = args[0]
+        if not self.is_admin:
+            return redirect('main')
+        return fun(*args, **kwargs)
+    return wrapper
+def login_required(fun): 
     def wrapper(*args, **kwargs):
         self = args[0]
         request = args[1]
-        if is_authenticated(self,request):
-            return fun(*args)
+        if self.is_logged_in:
+            return fun(*args, **kwargs)
         else:
             self.turn_back_to = request.path
             return redirect('/login')
     return wrapper
 def create_token(payload):
-    payload['exp'] = datetime.datetime.utcnow()+datetime.timedelta(minutes=300)
+    payload['exp'] = datetime.datetime.utcnow()+datetime.timedelta(seconds=300)
     token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
     return token
 
@@ -121,6 +117,10 @@ class Application(object):
             ]
         )
         self.turn_back_to = "" ## turn back to page where user was redirected from
+        self.is_logged_in = False 
+        self.is_admin = False
+
+    ## custom functions
     @property
     def path_to_turn_back(self):
         if self.turn_back_to:
@@ -128,11 +128,28 @@ class Application(object):
             self.turn_back_to = ""
             return path
         return self.turn_back_to
-    def login_user(self, user_id,username):
-        token = create_token({'user_id':user_id,'username':username})
-        response = redirect(self.path_to_turn_back or '/main')
+    def login_user(self, user, redirect_to=None):
+        token = create_token(self._create_payload_from_user(user))
+        response = redirect(self.path_to_turn_back or redirect_to or '/main')
         response.set_cookie("token",token)
         return response
+    def _create_payload_from_user(self, user:User)->dict:
+        return {'sub':user.user_id,'username':user.username}
+    def _identity_check(self, request):
+        token = request.cookies.get('token', None)
+        if token:
+            payload = payload_from_token(token)
+            if payload:
+                user_id = payload.get('sub','')
+                username = payload.get('username','')
+                user = self.get_user_by_id(user_id)
+                if user:
+                    if user.username == username:
+                        self.is_logged_in = True
+                        self.is_admin = user.admin
+
+
+    ## views     
     def index(self,request):
         return self.render_template('index.html')
     def login(self,request):
@@ -150,7 +167,7 @@ class Application(object):
                 response = self.login_user(user.user_id,user.username)
                 return response
         return self.render_template('login.html', error=error)
-    @login_required
+    @admin_required
     def admin(self,request):
         return Response('Admin page')
     def main(self,request):
@@ -185,8 +202,12 @@ class Application(object):
             else:
                 new_user = User(username=username, password=generate_password_hash(password, method='sha256'))
                 self.add_user(new_user)
-                return redirect('/main')
+                response = self.login_user(new_user) ## method login_user already returns response
+                return response
         return self.render_template('signup.html')
+
+
+    ## database calls
     def create_admin(self,username:str, password:str)->None:
         ## hash password
         password = generate_password_hash(password, method='sha256') 
@@ -206,7 +227,7 @@ class Application(object):
     def read_posts(self):
         posts = self.session.query(Post)
         return [p for p in posts]
-    def update_post(self, post_id:int, text:str):
+    def update_post(self, post_id:int, text:str): ## deprecated
         try:
             post = self.session.query(Post).filter_by(post_id=post_id).first()
             post.text = text
@@ -217,12 +238,14 @@ class Application(object):
         self.session.query(Post).filter_by(post_id=post_id).delete()
         self.session.commit()
 
-    def post_text(self,text):
+    def post_text(self,text): ## deprecated
         post = Post(text=text)
         self.create_post(post)
         return self.read_posts()
-        
-    def dispatch_request(self,request):
+
+
+    ## additional server functionality
+    def _dispatch_request(self,request):
         endpoint_to_views={
             "index":self.index,
             "login":self.login,
@@ -235,7 +258,10 @@ class Application(object):
             endpoint, values = adapter.match()
             return endpoint_to_views[endpoint](request)
         except HTTPException as e:
-            return e
+            return e    
+    def dispatch_request(self,request):
+        self._identity_check(request)
+        return self._dispatch_request(request)
     def render_template(self, template_name, **context):
         t = self.jinja_env.get_template(template_name)
         return Response(t.render(context), mimetype="text/html")
@@ -243,9 +269,9 @@ class Application(object):
         request = Request(environ)
         response = self.dispatch_request(request)
         return response(environ, start_response)
-
     def __call__(self, environ, start_response):
         return self.wsgi_app(environ, start_response)
+
 
 def create_app(with_static=True):
     app = Application()
