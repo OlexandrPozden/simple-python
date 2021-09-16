@@ -66,7 +66,7 @@ SECRET_KEY = 'k4Ndh1r6af5SZVnGitY82lpjK646apEnOAnc5lhW'
 def admin_required(fun):
     def wrapper(*args, **kwargs):
         self = args[0]
-        if not self.is_admin:
+        if not self.identity.admin:
             return redirect('main')
         return fun(*args, **kwargs)
     return wrapper
@@ -74,7 +74,7 @@ def login_required(fun):
     def wrapper(*args, **kwargs):
         self = args[0]
         request = args[1]
-        if self.is_logged_in:
+        if self.identity:
             return fun(*args, **kwargs)
         else:
             self.turn_back_to = request.path
@@ -135,7 +135,7 @@ class Application(object):
         response.set_cookie("token",token)
         return response
     def logout_user(self, response:Response)->Response:
-        if self.is_logged_in:
+        if self.identity:
             self.identity = None
             response.delete_cookie("token")
         return response
