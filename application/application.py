@@ -66,9 +66,10 @@ SECRET_KEY = 'k4Ndh1r6af5SZVnGitY82lpjK646apEnOAnc5lhW'
 def admin_required(fun):
     def wrapper(*args, **kwargs):
         self = args[0]
-        if not self.identity.admin:
-            return redirect('main')
-        return fun(*args, **kwargs)
+        if self.identity:
+            if self.identity.admin:
+                return fun(*args, **kwargs)
+        return redirect('/main')
     return wrapper
 def login_required(fun): 
     def wrapper(*args, **kwargs):
@@ -115,9 +116,9 @@ class Application(object):
                 Rule('/signup', endpoint="signup"),
                 Rule('/admin', endpoint="admin"),
                 Rule('/logout', endpoint="logout"),
-                Rule('post/<int:post_id>', endpoint="post"),
-                Rule('post/<int:post_id>/edit', endpoint="post/edit"),
-                Rule('post/new', endpoint="post/new"),
+                Rule('/post/<int:post_id>', endpoint="post"),
+                Rule('/post/<int:post_id>/edit', endpoint="post/edit"),
+                Rule('/post/new', endpoint="post/new"),
             ]
         )
         self.turn_back_to = "" ## turn back to page where user was redirected from
