@@ -114,6 +114,7 @@ class Application(object):
                 Rule("/main", endpoint="main"),
                 Rule('/signup', endpoint="signup"),
                 Rule('/admin', endpoint="admin"),
+                Rule('/logout', endpoint="logout"),
             ]
         )
         self.turn_back_to = "" ## turn back to page where user was redirected from
@@ -132,6 +133,12 @@ class Application(object):
         token = create_token(self._create_payload_from_user(user))
         response = redirect(self.path_to_turn_back or redirect_to or '/main')
         response.set_cookie("token",token)
+        return response
+    def logout_user(self, response:Response)->Response:
+        if self.is_logged_in:
+            self.is_logged_in = False
+            self.is_admin = False
+            response.delete_cookie("token")
         return response
     def _create_payload_from_user(self, user:User)->dict:
         return {'sub':user.user_id,'username':user.username}
@@ -167,6 +174,8 @@ class Application(object):
                 response = self.login_user(user.user_id,user.username)
                 return response
         return self.render_template('login.html', error=error)
+    def logout(self,request):
+        return self.login_user(self.render_template('main.html'))
     @admin_required
     def admin(self,request):
         return Response('Admin page')
@@ -252,6 +261,7 @@ class Application(object):
             "main":self.main,
             "signup":self.signup,
             "admin":self.admin,
+            "logout":self.logout,
         }
         adapter = self.url_map.bind_to_environ(request.environ)
         try:

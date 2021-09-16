@@ -19,7 +19,10 @@
         </form>
         <p id="error">{% if error %}{{ error }}{% endif %}</p>
 
-        <p id="error">{% if username %}{{ username }}{% endif %}</p>
+        <p>{% if username %}{{ username }}
+            <a href="logout">
+                <p>log out</p>
+            </a>{% endif %}</p>
         {% if posts %}
         <div class="posts">
             <ol>
