@@ -121,6 +121,7 @@ class Application(object):
                 Rule('/post/<int:post_id>', endpoint="post"),
                 Rule('/post/<int:post_id>/edit', endpoint="post/edit"),
                 Rule('/post/new', endpoint="post/new"),
+                Rule('/post/<str:username>')
             ]
         )
         self.turn_back_to = "" ## turn back to page where user was redirected from
@@ -213,7 +214,14 @@ class Application(object):
     @login_required
     def post_new(self, request):
         if request.method == 'POST':
-            pass ## post post
+            title = request.form.get('title')
+            text = request.form.get('text')
+            request_publish = bool(request.form.get('request_publish'))
+            user_id = self.identity.user_id
+
+            post = Post(title=title, text=text, request_publish = request_publish, user_id=user_id)
+            self.post_post(post)
+
         return self.render_template('new_post.html',post=None)
     @login_required
     def post_edit(self, request, post_id):
