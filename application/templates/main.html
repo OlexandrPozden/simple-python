@@ -29,16 +29,11 @@
         <p><a href="/login">Login</a></p>
         {% endif %} {% if posts %}
         <div class="posts">
-            <ol>
+
                 {% for post in posts %}
-                <li>{{post.post_id}}{{ post.text }}
-                    <div class="buttons">
-                        <div class="button update">update</div> |
-                        <div class="button delete">delete</div>
-                    </div>
-                </li>
+                <p>{{post.username}}-{{ post.text }}-{{post.published_time}}</p>
+                
                 {% endfor %}
-            </ol>
 
         </div>
         {% endif %}
