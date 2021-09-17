@@ -27,7 +27,7 @@ from werkzeug.utils import redirect
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base  
 from sqlalchemy import Column, String, Integer, Boolean, Date, DateTime, ForeignKey  
 
@@ -39,19 +39,7 @@ from jinja2 import FileSystemLoader
 import jwt
 
 base = declarative_base()
-class Post(base):
-    __tablename__ = 'posts'
-    post_id = Column(Integer, primary_key=True, autoincrement=True)
-    title = Column(String)
-    text = Column(String, nullable=False)
-    user_id = Column(Integer, ForeignKey('users.user_id', ondelete="DELETE"))
-    published = Column(Boolean, default=False, nullable=False)
-    request_publish = Column(Boolean, default=False, nullable=False)
-    published_time = Column(DateTime)
-    created_time = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
-    updated_time = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
-    def __repr__(self):
-        return '<Post %r>' % self.post_id
+
 
 class User(base):
     __tablename__ = 'users'
@@ -63,6 +51,25 @@ class User(base):
         if self.admin:
             return '<Admin %r>' % self.username
         return '<User %r>' % self.username
+
+class Post(base):
+    __tablename__ = 'posts'
+    post_id = Column(Integer, primary_key=True, autoincrement=True)
+    title = Column(String)
+    text = Column(String, nullable=False)
+    user_id = Column(Integer, ForeignKey('users.user_id', ondelete="DELETE"))
+    published = Column(Boolean, default=False, nullable=False)
+    request_publish = Column(Boolean, default=False, nullable=False)
+    published_time = Column(DateTime)
+    created_time = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
+    updated_time = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
+    
+    #user = relationship("User", back_populates = "posts")
+
+    def __repr__(self):
+        return '<Post %r>' % self.post_id
+#User.posts = relationship("Post", order_by = Post.post_id, back_populates = "user")
+
 
 def admin_required(fun):
     def wrapper(*args, **kwargs):
@@ -329,14 +336,8 @@ class Application(object):
     def get_requested_posts(self):
         return self.session.query(Post).filter_by(request_publish=True).all()
     def get_all_public_posts(self):
-        result = self.session.query(Post, User).join()## need to fix
-        print(result)
-        for row in result:
-            print(row)
-            print(row.Post)
-            print(row.User)
-            # for inv in row.invoices:
-            #     print (row.id, row.name, inv.invno, inv.amount)
+        result = self.session.query(Post).join(User).filter(Post.published == True)## need to fix
+        return [row for row in result]
     def get_public_posts_by_user_id(self, user_id):
         return self.session.query(Post).filter_by(user_id = user_id, published = True).all()
     def get_posts_by_user_id(self, user_id):
