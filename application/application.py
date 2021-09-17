@@ -229,8 +229,21 @@ class Application(object):
         return self.render_template('new_post.html',post=None)
     @login_required
     def post_edit(self, request, post_id):
+        if request.method == 'POST':
+            request_publish = bool(request.form.get('request_publish'))
+            title = request.form.get('title')
+            text = request.form.get('text')
+            self.update_post_by_fields(post_id,
+            title=title,
+            text=text,
+            request_publish=request_publish,
+            published=False,
+            updated_time = datetime.datetime.utcnow()
+            )
+            return redirect('/post/%s'%self.identity.username)
+            #return self.render_template('post.html', post=post)
         post = self.get_post(post_id)
-        if post:
+        if post:        
             ## is author of that post
             if post.user_id == self.identity.user_id: 
                 return self.render_template('new_post.html', post=post)
@@ -298,14 +311,28 @@ class Application(object):
         posts = self.session.query(Post).filter(Post.user_id == user_id).all()
         print("author posts:",posts)
         return [p for p in posts]
-    def update_post(self, post:Post): ## deprecated
-        post_id = post.post_id
-        try:
-            old_post = self.session.query(Post).filter_by(post_id=post_id).first()
-            old_post = post
-            self.session.commit()
-        except:
-            print("Post with post id: %s does not exist" % post_id)
+    def update_post_by_fields(self, post_id, **kwargs):
+        print("updating post with id", post_id)
+        post = self.session.query(Post).filter_by(post_id=post_id).first()
+        for attr, value in kwargs.items():
+            setattr(post, attr, value)
+        for attr in kwargs:
+            print(getattr(post, attr))
+        self.session.commit()
+
+    # def update_post(self, post:Post): ## deprecated ## does not work
+    #     post_id = post.post_id
+    #     try:
+    #         old_post = self.session.query(Post).filter_by(post_id=post_id).first()
+    #         old_post.title = post.title
+    #         old_post.text = post.text
+    #         old_post.request_publish = post.request_publish
+    #         old_post.published = post.published
+    #         old_post.updated_time = post.updated_time
+    #         old_post.published_time = post.published_time
+    #         self.session.commit()
+    #     except:
+    #         print("Post with post id: %s does not exist" % post_id)
     def delete_post(self, post_id):
         self.session.query(Post).filter_by(post_id=post_id).delete()
         self.session.commit()

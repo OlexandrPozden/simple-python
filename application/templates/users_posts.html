@@ -10,7 +10,9 @@
 
 <body>
     {% if is_owner %}
-    <div class="button">create new post</div>
+    <a href="/post/new">
+        <div class="button">create new post</div>
+    </a>
     {% endif %}
     <!-- Post section-->
     {% if posts%}
