@@ -21,7 +21,9 @@
     {% else %} {% if post.request_publish%}
     <div class="button requested">requested to publish</div>
     {% else %}
-    <div class="button publish">publish</div>
+    <a href="/post/{{post.post_id}}/request_publish">
+        <div class="button publish">publish</div>
+    </a>
     {% endif %} {% endif %}
     <div class="button danger">Delete</div>
     {% endif%}

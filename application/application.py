@@ -21,7 +21,7 @@ SECRET_KEY = 'k4Ndh1r6af5SZVnGitY82lpjK646apEnOAnc5lhW'
 #     def __call__(self, environ, start_response):
 
 from werkzeug.routing import Map, Rule, NotFound, RequestRedirect
-from werkzeug.exceptions import HTTPException, NotFound
+from werkzeug.exceptions import HTTPException, NotFound, Forbidden
 from werkzeug.middleware.shared_data import SharedDataMiddleware
 from werkzeug.utils import redirect
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -122,6 +122,7 @@ class Application(object):
                 Rule('/post/<int:post_id>/edit', endpoint="post/edit"),
                 Rule('/post/new', endpoint="post/new"),
                 Rule('/post/<string:authorname>', endpoint="post/authorname"),
+                Rule('/post/<int:post_id>/request_publish', endpoint="post/request_publish"),
             ]
         )
         self.turn_back_to = "" ## turn back to page where user was redirected from
@@ -244,6 +245,21 @@ class Application(object):
             return self.render_template('post.html', post=post,is_owner=is_owner)
         return self.render_template('404.html')
     @login_required
+    def request_publish(self, request, post_id):
+        post = self.get_post(post_id)
+        if not post:
+            return NotFound
+        if post.is_published == True:
+            return self.render_template('/post/%i'%post_id)
+        if self.identity.user_id == post.user_id:
+            post.request_publish = True
+            self.update_post(post)
+            response = Response('Requested. Go <a href="/">home</a>', mimetype='text/html')
+            response.status_code=200
+            return response
+        return Forbidden
+        
+    @login_required
     def users_posts(self, request, authorname):
         print(authorname)
         is_owner = False
@@ -308,6 +324,7 @@ class Application(object):
             "post/edit":self.post_edit,
             "post": self.post,
             "post/authorname":self.users_posts,
+            "post/request_publish":self.request_publish,
         }
         adapter = self.url_map.bind_to_environ(request.environ)
         try:
