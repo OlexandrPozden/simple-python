@@ -218,9 +218,12 @@ class Application(object):
             text = request.form.get('text')
             request_publish = bool(request.form.get('request_publish'))
             user_id = self.identity.user_id
+            username = self.identity.username
 
             post = Post(title=title, text=text, request_publish = request_publish, user_id=user_id)
             self.post_post(post)
+
+            return redirect('/post/%s'%username)
 
         return self.render_template('new_post.html',post=None)
     @login_required
@@ -233,20 +236,25 @@ class Application(object):
         return self.render_template('404.html')
     @login_required
     def post(self, request, post_id):
-        post = self.read_post(post_id)
+        is_owner = False
+        post = self.get_post(post_id)
         if post: 
-            return self.render_template('post.html', post=post)
+            if self.identity.user_id == post.user_id: 
+                is_owner = True
+            return self.render_template('post.html', post=post,is_owner=is_owner)
         return self.render_template('404.html')
     @login_required
     def users_posts(self, request, authorname):
         print(authorname)
         is_owner = False
         author = self.get_user_by_name(authorname)
-        ## select all posts from that author
-        posts = self.get_posts_by_user_id(author.user_id)
-        if self.identity.user_id == author.user_id:
-            is_owner = True
-        return self.render_template('users_posts.html', posts=posts, is_owner=is_owner)
+        if author:
+            ## select all posts from that author
+            posts = self.get_posts_by_user_id(author.user_id)
+            if self.identity.user_id == author.user_id:
+                is_owner = True
+            return self.render_template('users_posts.html', posts=posts, is_owner=is_owner)
+        return self.render_template('404.html')
     ## database calls
     def create_admin(self,username:str, password:str)->None:
         ## hash password
@@ -262,7 +270,7 @@ class Application(object):
         self.session.add(user)
         self.session.commit()
     def get_post(self, post_id):
-        post = self.session.query(Post).filter_by(post_id==post_id).first()
+        post = self.session.query(Post).filter_by(post_id=post_id).first()
         return post
     def post_post(self,post:Post)->None:
         self.session.add(post)

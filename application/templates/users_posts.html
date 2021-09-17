@@ -15,8 +15,8 @@
     <!-- Post section-->
     {% if posts%}
     <!--list of posts-->
-    {% for i, post in enumerate(posts) %}
-    <p>{{i}} - <a href="post/{{post.id}}">{{post.title}}</a></p>
+    {% for post in posts %}
+    <p>{{loop.index}}</p> - <a href="/post/{{post.post_id}}">{{post.title}}</a></p>
     {% endfor %} {%else%}
     <!-- In case when user didtn post anything yet-->
     {% if is_owner %}

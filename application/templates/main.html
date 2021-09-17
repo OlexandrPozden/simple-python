@@ -17,12 +17,15 @@
             </div>
         </a>
         <p id="error">{% if error %}{{ error }}{% endif %}</p>
-
-        <p>{% if username %}{{ username }}
+        {% if username %}
+        <p>{{ username }}
             <a href="logout">
                 <p>log out</p>
-            </a>{% endif %}</p>
-        {% if posts %}
+            </a>
+        </p>
+        {% else %}
+        <p><a href="/login">Login</a></p>
+        {% endif %} {% if posts %}
         <div class="posts">
             <ol>
                 {% for post in posts %}

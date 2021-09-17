@@ -9,7 +9,12 @@
 </head>
 
 <body>
-
+    <p>POst to submit:</p>
+    {% if posts %}
+    {% for post in posts %}
+    <p>{{post.}}</p>
+    {% else %}
+    {% endif %}
 </body>
 
 </html>

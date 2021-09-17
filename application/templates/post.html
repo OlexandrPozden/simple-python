@@ -10,16 +10,28 @@
 
 <body>
     {% if is_owner %}
-    <div class="button">create new</div>
-    <div class="button">edit</div>
+    <a href="/post/new">
+        <div class="button">create new</div>
+    </a>
+    <a href="/post/{{post.post_id}}/edit">
+        <div class="button">edit</div>
+    </a>
     {% if post.published %}
     <div class="button succeed">published</div>
+    {% else %} {% if post.request_publish%}
+    <div class="button requested">requested to publish</div>
     {% else %}
-    <div class="button">publish</div>
-    {% endif %}
+    <div class="button publish">publish</div>
+    {% endif %} {% endif %}
     <div class="button danger">Delete</div>
     {% endif%}
-
+    <!--Post section-->
+    {% if post %}
+    <div class="title">{{post.title}}</div>
+    <!--Author-->
+    <div class="text">{{post.text}}</div>
+    {% endif %}
+    <script src="static/js/post.js"></script>
 </body>
 
 </html>
