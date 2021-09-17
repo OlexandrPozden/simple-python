@@ -123,6 +123,7 @@ class Application(object):
                 Rule('/post/new', endpoint="post/new"),
                 Rule('/post/<string:authorname>', endpoint="post/authorname"),
                 Rule('/post/<int:post_id>/request_publish', endpoint="post/request_publish"),
+                Rule('/post/<int:post_id>/publish', endpoint="post/publish"),
             ]
         )
         self.turn_back_to = "" ## turn back to page where user was redirected from
@@ -184,8 +185,10 @@ class Application(object):
         return self.logout_user(redirect('/'))
     @admin_required
     def admin(self,request):
-        return Response('Admin page')
+        posts = self.get_requested_posts()
+        return self.render_template('admin.html',posts=posts)
     def main(self,request):
+        self.get_all_public_posts()
         error = ""
         username = None
         posts = self.read_posts()
@@ -243,7 +246,7 @@ class Application(object):
             return redirect('/post/%s'%self.identity.username)
             #return self.render_template('post.html', post=post)
         post = self.get_post(post_id)
-        if post:        
+        if post:
             ## is author of that post
             if post.user_id == self.identity.user_id: 
                 return self.render_template('new_post.html', post=post)
@@ -251,23 +254,34 @@ class Application(object):
     @login_required
     def post(self, request, post_id):
         is_owner = False
+        is_admin = False
         post = self.get_post(post_id)
         if post: 
             if self.identity.user_id == post.user_id: 
                 is_owner = True
-            return self.render_template('post.html', post=post,is_owner=is_owner)
+            is_admin = self.identity.admin
+            return self.render_template('post.html', post=post,is_owner=is_owner, is_admin=is_admin)
         return self.render_template('404.html')
+    @admin_required
+    def post_publish(self, request, post_id):
+        post = self.get_post(post_id)
+        if not post: 
+            return NotFound
+        else:
+            if not post.request_publish:
+                return redirect('/admin') 
+            self.update_post_by_fields(post_id, request_publish=False, published=True, published_time=datetime.datetime.utcnow())
+            return redirect('/admin')
     @login_required
     def request_publish(self, request, post_id):
         post = self.get_post(post_id)
         if not post:
             return NotFound
-        if post.is_published == True:
+        if post.published == True:
             return self.render_template('/post/%i'%post_id)
         if self.identity.user_id == post.user_id:
-            post.request_publish = True
-            self.update_post(post)
-            response = Response('Requested. Go <a href="/">home</a>', mimetype='text/html')
+            self.update_post_by_fields(post_id, request_publish=True, updated_time=datetime.datetime.utcnow())
+            response = Response('Requested. Go back<a href="/post/%s">to the list</a>'%self.identity.username, mimetype='text/html')
             response.status_code=200
             return response
         return Forbidden
@@ -312,8 +326,17 @@ class Application(object):
     def read_posts(self):
         posts = self.session.query(Post)
         return [p for p in posts]
+    def get_requested_posts(self):
+        return self.session.query(Post).filter_by(request_publish=True).all()
     def get_all_public_posts(self):
-        return self.session.query(Post).filter_by(published=True).all()
+        result = self.session.query(Post, User).join()## need to fix
+        print(result)
+        for row in result:
+            print(row)
+            print(row.Post)
+            print(row.User)
+            # for inv in row.invoices:
+            #     print (row.id, row.name, inv.invno, inv.amount)
     def get_public_posts_by_user_id(self, user_id):
         return self.session.query(Post).filter_by(user_id = user_id, published = True).all()
     def get_posts_by_user_id(self, user_id):
@@ -361,6 +384,7 @@ class Application(object):
             "post": self.post,
             "post/authorname":self.users_posts,
             "post/request_publish":self.request_publish,
+            "post/publish":self.post_publish,
         }
         adapter = self.url_map.bind_to_environ(request.environ)
         try:

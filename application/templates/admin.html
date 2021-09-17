@@ -9,11 +9,14 @@
 </head>
 
 <body>
-    <p>POst to submit:</p>
+    <p>POsts to submit:</p>
     {% if posts %}
     {% for post in posts %}
-    <p>{{post.}}</p>
+    <a href="/post/{{post.post_id}}">
+    <p>{{post.title}}</p></a>
+    {% endfor %}}
     {% else %}
+    <p>No posts to submit</p>
     {% endif %}
 </body>
 
