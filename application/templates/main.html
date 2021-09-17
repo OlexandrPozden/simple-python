@@ -31,8 +31,9 @@
         <div class="posts">
 
                 {% for post in posts %}
-                <p>{{post.username}}-{{ post.text }}-{{post.published_time}}</p>
-                
+                <a href="/post/{{post.post_id}}">
+                <p>{{post.username}}-{{ post.title }}-{{post.published_time}}</p>
+                </a>
                 {% endfor %}
 
         </div>

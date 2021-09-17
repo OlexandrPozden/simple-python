@@ -195,10 +195,10 @@ class Application(object):
         posts = self.get_requested_posts()
         return self.render_template('admin.html',posts=posts)
     def main(self,request):
-        self.get_all_public_posts()
+        posts = self.get_all_public_posts()
         error = ""
         username = None
-        posts = self.read_posts()
+        # posts = self.read_posts()
 
         if self.identity:
             username = self.identity.username
@@ -336,7 +336,10 @@ class Application(object):
     def get_requested_posts(self):
         return self.session.query(Post).filter_by(request_publish=True).all()
     def get_all_public_posts(self):
-        result = self.session.query(Post).join(User).filter(Post.published == True)## need to fix
+        result = self.session.query(Post.post_id,Post.title,Post.text, Post.published_time,User.username).join(User).filter(Post.published == True)## need to fix
+        print(result)
+        for row in result:
+            print(row)
         return [row for row in result]
     def get_public_posts_by_user_id(self, user_id):
         return self.session.query(Post).filter_by(user_id = user_id, published = True).all()
