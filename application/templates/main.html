@@ -18,7 +18,9 @@
         </a>
         <p id="error">{% if error %}{{ error }}{% endif %}</p>
         {% if username %}
-        <p>{{ username }}
+        <p>
+            <a href="/post/{{ username }}">{{ username }}
+        </a>
             <a href="logout">
                 <p>log out</p>
             </a>

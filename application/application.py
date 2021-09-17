@@ -274,16 +274,19 @@ class Application(object):
         
     @login_required
     def users_posts(self, request, authorname):
+        print('authorname',authorname)
         posts = []
         is_owner = False
         author = self.get_user_by_name(authorname)
+        print(author)
         if author:
             ## select all posts from that author
 
             if self.identity.user_id == author.user_id:
                 is_owner = True
                 posts = self.get_posts_by_user_id(author.user_id)
-            posts = self.get_public_posts_by_user_id(author.user_id)
+            else:
+                posts = self.get_public_posts_by_user_id(author.user_id)
             return self.render_template('users_posts.html', posts=posts, is_owner=is_owner)
         return self.render_template('404.html')
     ## database calls
