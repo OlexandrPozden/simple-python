@@ -16,7 +16,8 @@
     <a href="/post/{{post.post_id}}/edit">
         <div class="button">edit</div>
     </a>
-    {% if post.published %} {% else %} {% if post.request_publish%}
+    {% if post.published %}
+    <div class="button published">published</div> {% else %} {% if post.request_publish%}
     <div class="button requested">requested to publish</div>
     {% else %}
     <a href="/post/{{post.post_id}}/request_publish">
