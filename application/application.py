@@ -121,7 +121,7 @@ class Application(object):
                 Rule('/post/<int:post_id>', endpoint="post"),
                 Rule('/post/<int:post_id>/edit', endpoint="post/edit"),
                 Rule('/post/new', endpoint="post/new"),
-                Rule('/post/<str:username>')
+                Rule('/post/<string:authorname>', endpoint="post/authorname"),
             ]
         )
         self.turn_back_to = "" ## turn back to page where user was redirected from
@@ -237,7 +237,16 @@ class Application(object):
         if post: 
             return self.render_template('post.html', post=post)
         return self.render_template('404.html')
-
+    @login_required
+    def users_posts(self, request, authorname):
+        print(authorname)
+        is_owner = False
+        author = self.get_user_by_name(authorname)
+        ## select all posts from that author
+        posts = self.get_posts_by_user_id(author.user_id)
+        if self.identity.user_id == author.user_id:
+            is_owner = True
+        return self.render_template('users_posts.html', posts=posts, is_owner=is_owner)
     ## database calls
     def create_admin(self,username:str, password:str)->None:
         ## hash password
@@ -253,13 +262,17 @@ class Application(object):
         self.session.add(user)
         self.session.commit()
     def get_post(self, post_id):
-        post = self.session.query(Post).filter(post_id==post_id).first()
+        post = self.session.query(Post).filter_by(post_id==post_id).first()
         return post
     def post_post(self,post:Post)->None:
         self.session.add(post)
         self.session.commit()
     def read_posts(self):
         posts = self.session.query(Post)
+        return [p for p in posts]
+    def get_posts_by_user_id(self, user_id):
+        posts = self.session.query(Post).filter(Post.user_id == user_id).all()
+        print("author posts:",posts)
         return [p for p in posts]
     def update_post(self, post:Post): ## deprecated
         post_id = post.post_id
@@ -286,11 +299,12 @@ class Application(object):
             "post/new":self.post_new,
             "post/edit":self.post_edit,
             "post": self.post,
+            "post/authorname":self.users_posts,
         }
         adapter = self.url_map.bind_to_environ(request.environ)
         try:
             endpoint, values = adapter.match()
-            return endpoint_to_views[endpoint](request,*values)
+            return endpoint_to_views[endpoint](request,**values)
         except NotFound:
             return self.render_template('404.html')
         except HTTPException as e:

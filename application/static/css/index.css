@@ -310,6 +310,7 @@ a {
     align-items: center;
     color: transparent;
     transition-delay: 0.3s;
+    transition: 0.3s;
     /*background: linear-gradient( -30deg, #fffb1933, #ff003733);
     -webkit-text-fill-color: transparent;
     -webkit-background-clip: text;
@@ -321,9 +322,8 @@ a {
     /*
     color: #8a5f3c25
     */
-    /*
-    opacity: 1;*/
     color: #f39135;
+    transition: 0s;
     transition-delay: 0s;
 }
 
