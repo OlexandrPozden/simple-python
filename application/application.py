@@ -274,14 +274,16 @@ class Application(object):
         
     @login_required
     def users_posts(self, request, authorname):
-        print(authorname)
+        posts = []
         is_owner = False
         author = self.get_user_by_name(authorname)
         if author:
             ## select all posts from that author
-            posts = self.get_posts_by_user_id(author.user_id)
+
             if self.identity.user_id == author.user_id:
                 is_owner = True
+                posts = self.get_posts_by_user_id(author.user_id)
+            posts = self.get_public_posts_by_user_id(author.user_id)
             return self.render_template('users_posts.html', posts=posts, is_owner=is_owner)
         return self.render_template('404.html')
     ## database calls
@@ -307,6 +309,10 @@ class Application(object):
     def read_posts(self):
         posts = self.session.query(Post)
         return [p for p in posts]
+    def get_all_public_posts(self):
+        return self.session.query(Post).filter_by(published=True).all()
+    def get_public_posts_by_user_id(self, user_id):
+        return self.session.query(Post).filter_by(user_id = user_id, published = True).all()
     def get_posts_by_user_id(self, user_id):
         posts = self.session.query(Post).filter(Post.user_id == user_id).all()
         print("author posts:",posts)
