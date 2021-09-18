@@ -77,7 +77,7 @@ def admin_required(fun):
         if self.identity:
             if self.identity.admin:
                 return fun(*args, **kwargs)
-        return redirect('/main')
+        return Forbidden('Only users with admin permission can reach this page.')
     return wrapper
 def login_required(fun): 
     def wrapper(*args, **kwargs):
