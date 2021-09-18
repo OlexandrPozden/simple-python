@@ -1,50 +1,38 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-
-<body>
-    {% if is_owner %}
-    <a href="/post/new">
-        <div class="button">create new</div>
-    </a>
-    <a href="/post/{{post.post_id}}/edit">
-        <div class="button">edit</div>
-    </a>
-    {% if post.published %}
-    <div class="button published">published</div> {% else %} {% if post.request_publish%}
-    <div class="button requested">requested to publish</div>
-    {% else %}
-    <a href="/post/{{post.post_id}}/request_publish">
-        <div class="button publish">publish</div>
-    </a>
-    {% endif %} {% endif %}
-    <a href="/post/{{post.post_id}}/delete">
+{% extends 'layout.html' %} {% block body%}
+<link rel="stylesheet" href="/static/css/post.css" type="text/css"> {% if is_owner %}
+<a href="/post/new">
+    <div class="button">create new</div>
+</a>
+<a href="/post/{{post.post_id}}/edit">
+    <div class="button">edit</div>
+</a>
+{% if post.published %}
+<div class="button published">published</div> {% else %} {% if post.request_publish%}
+<div class="button requested">requested to publish</div>
+{% else %}
+<a href="/post/{{post.post_id}}/request_publish">
+    <div class="button publish">publish</div>
+</a>
+{% endif %} {% endif %}
+<a href="/post/{{post.post_id}}/delete">
     <div class="button danger">Delete</div>
-    </a>
-    {% endif%}
-    <!-- admin section -->
+</a>
+{% endif%}
+<!-- admin section -->
 
-    {% if is_admin %} {% if post.published %}
-    <div class="button succeed">published</div>
+{% if is_admin %} {% if post.published %}
+<div class="button succeed">published</div>
 
-    {% else %}
-    <a href="/post/{{post.post_id}}/publish">
-        <div class="button publish">publish</div>
-    </a>
-    {% endif %} {% endif %}
-    <!--Post section-->
-    {% if post %}
-    <div class="title">{{post.title}}</div>
-    <!--Author-->
-    <div class="text">{{post.text}}</div>
-    {% endif %}
-    <script src="static/js/post.js"></script>
-</body>
-
-</html>
+{% else %}
+<a href="/post/{{post.post_id}}/publish">
+    <div class="button publish">publish</div>
+</a>
+{% endif %} {% endif %}
+<!--Post section-->
+{% if post %}
+<div class="title">{{post.title}}</div>
+<!--Author-->
+<div class="text">{{post.text}}</div>
+{% endif %}
+<script src="static/js/post.js"></script>
+{% endblock %}

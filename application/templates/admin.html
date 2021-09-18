@@ -1,23 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-
-<body>
-    <p>POsts to submit:</p>
-    {% if posts %}
-    {% for post in posts %}
-    <a href="/post/{{post.post_id}}">
-    <p>{{post.title}}</p></a>
-    {% endfor %}}
-    {% else %}
-    <p>No posts to submit</p>
-    {% endif %}
-</body>
-
-</html>
+{% extends 'layout.html' %} {% block body%}
+<link rel="stylesheet" href="/static/css/admin.css" type="text/css">
+<p>POsts to submit:</p>
+{% if posts %} {% for post in posts %}
+<a href="/post/{{post.post_id}}">
+    <p>{{post.title}}</p>
+</a>
+{% endfor %}} {% else %}
+<p>No posts to submit</p>
+{% endif %} {%endblock %}

@@ -1,12 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
+{% extends 'layout.html' %} {% block body%}
+<link rel="stylesheet" href="/static/css/users_post.css" type="text/css">
 
 <body>
     {% if is_owner %}
@@ -27,7 +20,4 @@
     {% else%}
     <!-- This user has not post anything yet.-->
     <p>This user has not post anything yet.</p>
-    {% endif %} {% endif %}
-</body>
-
-</html>
+    {% endif %} {% endif %} {%endblock %}
