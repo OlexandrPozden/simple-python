@@ -27,3 +27,6 @@ function parseJwt (token) {
 token = getCookie('token');
 payload = parseJwt(token);
 
+if (payload.username!=""){
+    
+}
