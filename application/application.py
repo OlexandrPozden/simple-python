@@ -21,7 +21,7 @@ SECRET_KEY = 'k4Ndh1r6af5SZVnGitY82lpjK646apEnOAnc5lhW'
 #     def __call__(self, environ, start_response):
 
 from werkzeug.routing import Map, Rule, NotFound, RequestRedirect
-from werkzeug.exceptions import HTTPException, NotFound, Forbidden
+from werkzeug.exceptions import HTTPException, NotFound, Forbidden, NotAcceptable
 from werkzeug.middleware.shared_data import SharedDataMiddleware
 from werkzeug.utils import redirect
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -131,6 +131,7 @@ class Application(object):
                 Rule('/post/<string:authorname>', endpoint="post/authorname"),
                 Rule('/post/<int:post_id>/request_publish', endpoint="post/request_publish"),
                 Rule('/post/<int:post_id>/publish', endpoint="post/publish"),
+                Rule('/post/<int:post_id>/delete', endpoint="post/delete")
             ]
         )
         self.turn_back_to = "" ## turn back to page where user was redirected from
@@ -291,8 +292,23 @@ class Application(object):
             response = Response('Requested. Go back<a href="/post/%s">to the list</a>'%self.identity.username, mimetype='text/html')
             response.status_code=200
             return response
-        return Forbidden
-        
+        return Forbidden("")
+    @login_required
+    def post_delete(self, request, post_id):
+        post = self.get_post(post_id)
+        if post:
+            if self.identity.user_id == post.user_id:
+                if request.method == 'POST':
+                    self.delete_post(post_id)
+                    return redirect("/post/%s"%(self.identity.username))
+                else:
+                    return Response("Are you sure you want to delete post <i>%s</i>?<br>\
+                    <form method='post' action=''><input type='submit' value='yes'></form>\
+                    <a href='/post/%i'><button type='button'>no</button></a>"%(post.title,post_id), mimetype="text/html")
+            else:
+                return Forbidden("")  
+        else:
+            return NotAcceptable("Invalid data.")
     @login_required
     def users_posts(self, request, authorname):
         print('authorname',authorname)
@@ -389,6 +405,7 @@ class Application(object):
             "post/authorname":self.users_posts,
             "post/request_publish":self.request_publish,
             "post/publish":self.post_publish,
+            "post/delete":self.post_delete
         }
         adapter = self.url_map.bind_to_environ(request.environ)
         try:
