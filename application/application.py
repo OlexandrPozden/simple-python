@@ -26,7 +26,7 @@ from werkzeug.middleware.shared_data import SharedDataMiddleware
 from werkzeug.utils import redirect
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base  
 from sqlalchemy import Column, String, Integer, Boolean, Date, DateTime, ForeignKey  
@@ -124,6 +124,7 @@ class Application(object):
                 Rule('/signup', endpoint="signup"),
                 Rule('/admin', endpoint="admin"),
                 Rule('/logout', endpoint="logout"),
+                Rule('/about', endpoint="about"),
                 Rule('/post', endpoint="main"),
                 Rule('/post/<int:post_id>', endpoint="post"),
                 Rule('/post/<int:post_id>/edit', endpoint="post/edit"),
@@ -131,7 +132,8 @@ class Application(object):
                 Rule('/post/<string:authorname>', endpoint="post/authorname"),
                 Rule('/post/<int:post_id>/request_publish', endpoint="post/request_publish"),
                 Rule('/post/<int:post_id>/publish', endpoint="post/publish"),
-                Rule('/post/<int:post_id>/delete', endpoint="post/delete")
+                Rule('/post/<int:post_id>/delete', endpoint="post/delete"),
+                Rule('/authors', endpoint="authors")
             ]
         )
         self.turn_back_to = "" ## turn back to page where user was redirected from
@@ -174,6 +176,8 @@ class Application(object):
     ## views     
     def index(self,request):
         return self.render_template('index.html')
+    def about(self,request):
+        return self.render_template('about.html')
     def login(self,request):
         error=""
         if request.method == 'POST':
@@ -309,6 +313,9 @@ class Application(object):
                 return Forbidden("")  
         else:
             return NotAcceptable("Invalid data.")
+    def authors(self,request):
+        users = self.get_all_authors()
+        return self.render_template('popular_authors.html', users=users)
     @login_required
     def users_posts(self, request, authorname):
         print('authorname',authorname)
@@ -340,6 +347,15 @@ class Application(object):
     def add_user(self, user:User)-> None:
         self.session.add(user)
         self.session.commit()
+    def get_all_authors(self):
+        sql_query = text("SELECT username, count(*) as amount\
+                                        FROM posts\
+                                        INNER JOIN users on users.user_id = posts.user_id\
+                                        WHERE published=1\
+                                        GROUP BY posts.user_id\
+                                        ORDER BY amount;")
+        result = self.session.execute(sql_query)
+        return result
     def get_post(self, post_id):
         post = self.session.query(Post).filter_by(post_id=post_id).first()
         return post
@@ -398,6 +414,7 @@ class Application(object):
             "main":self.main,
             "signup":self.signup,
             "admin":self.admin,
+            "about":self.about,
             "logout":self.logout,
             "post/new":self.post_new,
             "post/edit":self.post_edit,
@@ -405,7 +422,8 @@ class Application(object):
             "post/authorname":self.users_posts,
             "post/request_publish":self.request_publish,
             "post/publish":self.post_publish,
-            "post/delete":self.post_delete
+            "post/delete":self.post_delete,
+            "authors":self.authors,
         }
         adapter = self.url_map.bind_to_environ(request.environ)
         try:
