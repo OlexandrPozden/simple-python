@@ -1,11 +1,6 @@
-{% extends 'layout.html' %} {% block body}
-    <link rel="stylesheet" href="/static/css/popauthors.css" type="text/css">
-    <h1>Top 10 Authors</h1>
-    {% if users %}
-    {% for u in users%}
-    <p>{{loop.index}}. <a href="post/{{u.username}}}">{{u.username}}</a> - {{u.amount}} post{% if u.amount!=1%}s{%endif%}</p>
-    {% endfor %}
-    {% else %}
-
-    {% endif %}
-{%endblock %}
+{% extends 'layout.html' %} {% block body%}
+<link rel="stylesheet" href="/static/css/popauthors.css" type="text/css">
+<h1>Top 10 Authors</h1>
+{% if users %} {% for u in users%}
+<p>{{loop.index}}. <a href="post/{{u.username}}">{{u.username}}</a> - {{u.amount}} post{% if u.amount!=1%}s{%endif%}</p>
+{% endfor %} {% else %} {% endif %} {% endblock %}

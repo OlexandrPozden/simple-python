@@ -25,8 +25,31 @@ function parseJwt (token) {
 };
 
 token = getCookie('token');
-payload = parseJwt(token);
 
-if (payload.username!=""){
-    
+let userField = document.getElementById('user');
+
+if(token!=""){
+  console.log(token);
+  payload = parseJwt(token);
+  console.log(payload);
+
+
+  var username = payload.username;
+  if (username!=""){
+    let userProfile = document.createElement('a');
+    userProfile.href = "/post/"+username;
+    userProfile.innerHTML = username;
+    userField.appendChild(userProfile);    
+  }
 }
+else{
+  let loginOption = document.createElement('a');
+  loginOption.href = "/login";
+  loginOption.innerHTML = "log in";
+  let signupOption = document.createElement('a');
+  signupOption.innerHTML = "sign up";
+  signupOption.href = "/signup";
+  userField.appendChild(loginOption);
+  userField.appendChild(signupOption);
+}
+
