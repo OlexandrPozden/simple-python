@@ -40,8 +40,17 @@ import jwt
 
 base = declarative_base()
 
+engine = create_engine('sqlite:///test.db', echo=False)
+Session = sessionmaker(engine)  
+session = Session()
+base.metadata.create_all(engine)
 
-class User(base):
+class DbManipulation:
+    @classmethod
+    def get_all(cls):
+        return session.query(cls).all()  
+  
+class User(base,DbManipulation):
     __tablename__ = 'users'
     user_id = Column(Integer, primary_key=True, autoincrement=True)
     username = Column(String, nullable=False, unique=True)
@@ -52,7 +61,7 @@ class User(base):
             return '<Admin %r>' % self.username
         return '<User %r>' % self.username
 
-class Post(base):
+class Post(base,DbManipulation):
     __tablename__ = 'posts'
     post_id = Column(Integer, primary_key=True, autoincrement=True)
     title = Column(String)
@@ -107,11 +116,8 @@ def payload_from_token(token):
 
 class Application(object):
     def __init__(self, config=None):
-        engine = create_engine('sqlite:///test.db', echo=False)
-        Session = sessionmaker(engine)  
-        self.session = Session()
-        base.metadata.create_all(engine)
-
+        self.session = session
+        
         template_path = os.path.join(os.path.dirname(__file__), "templates")
         self.jinja_env = Environment(
             loader=FileSystemLoader(template_path), autoescape=True

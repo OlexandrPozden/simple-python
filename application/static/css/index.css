@@ -347,8 +347,11 @@ a {
     justify-content: center;
     align-items: center;
     font-size: 150px;
+    outline-color: rgb(166, 184, 184);
+    outline-offset: 10px;
+    outline-width: 15px;
     background: black;
-    -webkit-text-fill-color: transparent;
+    -webkit-text-fill-color: orange;
     -webkit-background-clip: text;
     transition: all .18s ease-in;
     opacity: 0;
