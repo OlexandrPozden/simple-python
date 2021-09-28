@@ -48,7 +48,43 @@ base.metadata.create_all(engine)
 class DbManipulation:
     @classmethod
     def get_all(cls):
-        return session.query(cls).all()  
+        return session.query(cls).all()
+    @classmethod
+    def save(cls,obj):
+        if isinstance(obj,cls):
+            session.add(obj)
+            session.commit()
+        else:
+            raise Exception("Wrong object type")  
+    @classmethod
+    def get_by_id(cls,id):
+        return session.query(cls).filter(getattr(cls,cls.__name__+"id") == id).first()
+    @classmethod
+    def get_by_field(cls,**field):
+        """
+        Pass only one argument!
+        User.get_by_field(username="Bob")
+        Post.get_by_field(title="my first post")
+        User.get_by_field(admin=True)
+        """
+        if len(field) == 1:
+            field_name, value  = list(field.items())[0]
+            if hasattr(cls, field_name):
+                return session.query(cls).filter(getattr(cls, field) == value).all()
+            else:
+                raise ValueError(f"Field {field_name} does not exist in context of {cls.__name__} model.")
+        else:
+            raise ValueError(f"Expected lenght of fields 1, but got {len(field)}")
+    @classmethod
+    def delete_by_id(cls,id):
+        session.query(cls).filter(getattr(cls,cls.__name__+"id") == id).delete()
+        session.commit()
+    @classmethod
+    def delete(cls,obj):
+        if isinstance(obj,cls):
+            cls.delete_by_id(obj,getattr(cls,cls.__name__+"id"))
+        else:
+            raise Exception("Wrong object type")
   
 class User(base,DbManipulation):
     __tablename__ = 'users'
