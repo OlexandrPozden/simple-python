@@ -58,10 +58,12 @@ class DbManipulation:
             raise Exception("Wrong object type")  
     @classmethod
     def get_by_id(cls,id):
-        return session.query(cls).filter(getattr(cls,cls.__name__+"id") == id).first()
+        id_field = cls.__name__.lower()+"_id"
+        return session.query(cls).filter(getattr(cls,id_field) == id).first()
     @classmethod
     def get_by_field(cls,**field):
-        """
+        """Returns objects from database by any field
+
         Pass only one argument!
         User.get_by_field(username="Bob")
         Post.get_by_field(title="my first post")
@@ -77,14 +79,47 @@ class DbManipulation:
             raise ValueError(f"Expected lenght of fields 1, but got {len(field)}")
     @classmethod
     def delete_by_id(cls,id):
-        session.query(cls).filter(getattr(cls,cls.__name__+"id") == id).delete()
+        id_field = cls.__name__.lower()+"_id"
+        session.query(cls).filter(getattr(cls,id_field) == id).delete()
         session.commit()
     @classmethod
     def delete(cls,obj):
-        if isinstance(obj,cls):
-            cls.delete_by_id(obj,getattr(cls,cls.__name__+"id"))
+        """Delete object from the database
+
+        Pass instance of the class to delete that object from the database.
+        It looks for id of object and deletes it by id using method delete_by_id.
+        If you have object id better use function delete_by_id
+
+        Parameters
+        ----------
+        
+        obj : User, Post
+            instance of the model class
+        
+        Raises
+        ------
+            - Wrong object type. Raises when you try to delete object using another
+            model class.
+            - Object does not exist in database.
+
+
+        Examples
+        --------
+
+        >>>isinstance(obj_user, User)
+        ... True
+        >>>User.delete(obj_user)
+        >>>
+        """
+        id_field = cls.__name__.lower()+"_id"
+        id = getattr(obj,id_field)
+        if cls.get_by_id(id):
+            if isinstance(obj,cls):
+                cls.delete_by_id(id)
+            else:
+                raise Exception(f"Wrong object type. Expected instance of class {cls.__name__} but got {type(obj).__name__}")
         else:
-            raise Exception("Wrong object type")
+            raise Exception(f"Object {obj.__repr__()} does not exist in database")
   
 class User(base,DbManipulation):
     __tablename__ = 'users'
@@ -149,7 +184,7 @@ class Post(base,DbManipulation):
         return all_posts.all()
         
     def __repr__(self):
-        return '<Post post=id=\'%r\'>' % self.post_id
+        return '<Post post_id=\'%r\'>' % self.post_id
 
 
 def admin_required(fun):
