@@ -92,10 +92,11 @@ class User(base,DbManipulation):
     username = Column(String, nullable=False, unique=True)
     password = Column(String, nullable=False)
     admin = Column(Boolean, nullable=False, default=False)
+
     def __repr__(self):
         if self.admin:
-            return '<Admin %r>' % self.username
-        return '<User %r>' % self.username
+            return '<Admin username\'%r\'>' % self.username
+        return '<User username=\'%r\'>' % self.username
 
 class Post(base,DbManipulation):
     __tablename__ = 'posts'
@@ -109,11 +110,46 @@ class Post(base,DbManipulation):
     created_time = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
     updated_time = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
     
-    #user = relationship("User", back_populates = "posts")
+    @classmethod
+    def full_details(cls, **filter):
+        """Returns details about post with the given filter
 
+        This method implemented only for Post model.
+        So when we call this method, we get the full details of
+        that post and in addition we get the author of that post,
+        with its unique user_id
+
+        Parameters
+        ----------
+        filter : dict
+            Statements which used to filter the query, where key is a field
+            of the model.
+
+        Returns
+        -------
+        list
+            List of tuples, where tuple is united object of two models (Post,User).
+        
+        Examples
+        --------
+        >>>Post.full_details(published=True)
+        ...
+
+        """
+        all_posts = session.query(Post.post_id,
+                            Post.title,
+                            Post.text,
+                            Post.published_time,
+                            Post.published, 
+                            User.user_id,
+                            User.username).join(User)
+        ## filter the response
+        for attr, value in filter.items():
+            all_posts = all_posts.filter(getattr(Post, attr)==value)
+        return all_posts.all()
+        
     def __repr__(self):
-        return '<Post %r>' % self.post_id
-#User.posts = relationship("Post", order_by = Post.post_id, back_populates = "user")
+        return '<Post post=id=\'%r\'>' % self.post_id
 
 
 def admin_required(fun):
@@ -410,7 +446,7 @@ class Application(object):
     def get_requested_posts(self):
         return self.session.query(Post).filter_by(request_publish=True).all()
     def get_all_public_posts(self):
-        result = self.session.query(Post.post_id,Post.title,Post.text, Post.published_time,User.username).join(User).filter(Post.published == True)## need to fix
+        result = self.session.query(Post.post_id,Post.title,Post.text, Post.published_time,User.username).join(User).filter(Post.published == True)
         print(result)
         for row in result:
             print(row)
