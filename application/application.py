@@ -38,6 +38,8 @@ from jinja2 import FileSystemLoader
 
 import jwt
 
+import getpass
+
 base = declarative_base()
 
 engine = create_engine('sqlite:///test.db', echo=False)
@@ -68,11 +70,15 @@ class DbManipulation:
         User.get_by_field(username="Bob")
         Post.get_by_field(title="my first post")
         User.get_by_field(admin=True)
+
+        Returns
+        -------
+        list 
         """
         if len(field) == 1:
             field_name, value  = list(field.items())[0]
             if hasattr(cls, field_name):
-                return session.query(cls).filter(getattr(cls, field) == value).all()
+                return session.query(cls).filter(getattr(cls, field_name) == value).all()
             else:
                 raise ValueError(f"Field {field_name} does not exist in context of {cls.__name__} model.")
         else:
@@ -149,7 +155,7 @@ class DbManipulation:
             else:
                 raise AttributeError(f"Object {self} does not have attribute {field_name}")
         session.commit()
-  
+
 class User(base,DbManipulation):
     __tablename__ = 'users'
     user_id = Column(Integer, primary_key=True, autoincrement=True)
@@ -161,7 +167,19 @@ class User(base,DbManipulation):
         if self.admin:
             return '<Admin username\'%r\'>' % self.username
         return '<User username=\'%r\'>' % self.username
-
+def create_admin():
+    username = input("username: ")
+    password = getpass.getpass("password: ")
+    ## hashing password
+    password = generate_password_hash(password, method='sha256')
+    ## check if username is already taken
+    if not User.get_by_field(username=username):
+        ## create new user with admin privileges
+        new_admin = User(username=username, password=password, admin=True)
+        User.save(new_admin)
+        print("Admin successfuly created!")
+    else:
+        raise Exception(f"User with username {username} already exists.")
 class Post(base,DbManipulation):
     __tablename__ = 'posts'
     post_id = Column(Integer, primary_key=True, autoincrement=True)
