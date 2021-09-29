@@ -122,6 +122,26 @@ class DbManipulation:
             raise Exception(f"Object {obj.__repr__()} does not exist in database")
     
     def update(self,**fields):
+        """Update object by field(s)
+        
+        Specify field_name and value which will be updated.
+        
+        Examples
+        --------
+
+        >>>post_obj.update(title="New title")
+        >>>
+        
+        Parametres
+        ----------
+        
+        fields : **dict, optional
+
+        Raises
+        ------
+
+            - AttributeError. Object does not have that field.
+        """
         for field in fields.items():
             field_name, value = field
             if hasattr(self, field_name):
