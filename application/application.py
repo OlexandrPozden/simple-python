@@ -120,6 +120,15 @@ class DbManipulation:
                 raise Exception(f"Wrong object type. Expected instance of class {cls.__name__} but got {type(obj).__name__}")
         else:
             raise Exception(f"Object {obj.__repr__()} does not exist in database")
+    
+    def update(self,**fields):
+        for field in fields.items():
+            field_name, value = field
+            if hasattr(self, field_name):
+                setattr(self, field_name,value)
+            else:
+                raise AttributeError(f"Object {self} does not have attribute {field_name}")
+        session.commit()
   
 class User(base,DbManipulation):
     __tablename__ = 'users'
@@ -505,7 +514,7 @@ class Application(object):
         posts = self.session.query(Post).filter(Post.user_id == user_id).all()
         print("author posts:",posts)
         return [p for p in posts]
-    ## TODO
+    ## done
     def update_post_by_fields(self, post_id, **kwargs):
         print("updating post with id", post_id)
         post = self.session.query(Post).filter_by(post_id=post_id).first()
