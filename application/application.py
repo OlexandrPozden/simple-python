@@ -205,6 +205,9 @@ class DbManipulation:
             else:
                 raise AttributeError(f"Object {self} does not have attribute {field_name}")
         session.commit()
+    @classmethod
+    def query(cls):
+        return session.query(cls).filter()
 
 class User(base,DbManipulation):
     __tablename__ = 'users'
