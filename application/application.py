@@ -207,6 +207,14 @@ class DbManipulation:
         session.commit()
     @classmethod
     def query(cls):
+        """Write your own custom queries
+        
+        Examples
+        --------
+        
+        >>>Post.query().filter().order_by(Post.post_id.desc()).limit(1).first()
+        <Post post_id='12'>
+        >>>"""
         return session.query(cls).filter()
 
 class User(base,DbManipulation):
