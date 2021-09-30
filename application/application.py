@@ -40,8 +40,9 @@ import jwt
 
 import getpass
 
-base = declarative_base()
+#from models import User, Post
 
+base = declarative_base()
 engine = create_engine('sqlite:///test.db', echo=False)
 Session = sessionmaker(engine)  
 session = Session()
@@ -63,8 +64,8 @@ class DbManipulation:
         id_field = cls.__name__.lower()+"_id"
         return session.query(cls).filter(getattr(cls,id_field) == id).first()
     @classmethod
-    def get_by_field(cls,**field):
-        """Returns objects from database by any field
+    def _get_by_field(cls,**field):
+        """Returns orm object from db by searched field
 
         Pass only one argument!
         User.get_by_field(username="Bob")
@@ -73,23 +74,59 @@ class DbManipulation:
 
         Returns
         -------
-        list 
+            orm_object
         """
         if len(field) == 1:
             field_name, value  = list(field.items())[0]
             if hasattr(cls, field_name):
-                return session.query(cls).filter(getattr(cls, field_name) == value).all()
+                result = session.query(cls).filter(getattr(cls, field_name) == value)
+                if len(result) == 1:
+                    return result[0]
+                return result 
             else:
                 raise ValueError(f"Field {field_name} does not exist in context of {cls.__name__} model.")
         else:
             raise ValueError(f"Expected lenght of fields 1, but got {len(field)}")
+    
+    @classmethod
+    def get_by_field(cls,**field):
+        """Return list or single object of cls model
+        
+        Queries by only one parameter."""
+        result = cls._get_by_field(**field).all()
+        if len(result) == 1:
+            return result[0]
+        else:
+            return result 
+    @classmethod
+    def get_by_fields(cls,**fields):
+        """The same as get_by_field but for many parameters."""
+        result = None
+        for field in fields:
+            filter = dict([field]) 
+            if not result:
+                result = cls._get_by_field(filter)
+            else:
+                result = result.filter(filter)
+        result = result.all()
+        if len(result) == 1:
+            return result[0]
+        else:
+            return result
     @classmethod
     def delete_by_id(cls,id):
+        """Deletes object by id
+        
+        Examples
+        --------
+        
+        >>>Post.delete_by_id(1013)
+        >>>"""
         id_field = cls.__name__.lower()+"_id"
         session.query(cls).filter(getattr(cls,id_field) == id).delete()
         session.commit()
     @classmethod
-    def delete(cls,obj):
+    def delete_obj(cls,obj):
         """Delete object from the database
 
         Pass instance of the class to delete that object from the database.
@@ -114,7 +151,7 @@ class DbManipulation:
 
         >>>isinstance(obj_user, User)
         ... True
-        >>>User.delete(obj_user)
+        >>>User.delete_obj(obj_user)
         >>>
         """
         id_field = cls.__name__.lower()+"_id"
@@ -126,7 +163,20 @@ class DbManipulation:
                 raise Exception(f"Wrong object type. Expected instance of class {cls.__name__} but got {type(obj).__name__}")
         else:
             raise Exception(f"Object {obj.__repr__()} does not exist in database")
-    
+    def delete(self):
+        """Delete obj from db
+        
+        The same as delete_obj but for instance of class
+        
+        Examples
+        --------
+        
+        >>>user_obj.delete()
+        >>>user_obj
+        >>>"""
+        self.delete_obj(self)
+        session.commit()
+        self.__dict__ = {}
     def update(self,**fields):
         """Update object by field(s)
         
@@ -232,6 +282,7 @@ class Post(base,DbManipulation):
         
     def __repr__(self):
         return '<Post post_id=\'%r\'>' % self.post_id
+
 
 
 def admin_required(fun):
@@ -344,7 +395,8 @@ class Application(object):
             username = request.form.get('username','')
             password = request.form.get('password','')
 
-            user = self.get_user_by_name(username)
+            #user = self.get_user_by_name(username)
+            user = User.get_by_field(username=username)
             if not user or not check_password_hash(user.password, password): 
                 error = "Wrong credentials."
                 return self.render_template('login.html', error=error)
@@ -495,7 +547,7 @@ class Application(object):
         return self.render_template('404.html')
     ## database calls
 
-    ## TODO
+    ## done
     def create_admin(self,username:str, password:str)->None:
         ## hash password
         password = generate_password_hash(password, method='sha256') 

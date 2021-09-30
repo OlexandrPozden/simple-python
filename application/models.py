@@ -1,9 +1,23 @@
-from sqlalchemy.ext.declarative import declarative_base  
+'''models.py
 
-base = declarative_base()
+Here are stored all models and some functions to interact with them.
 
-class Post(base):
-    pass
+Models
+------    
+User :
+        - user_id
+        - username
+        - password
+        - admin
+    Post :
+        - post_id
+        - title
+        - text
+        - user_id
+        - published
+        - request_publish
+        - published_time
+        - created_time
+        - updated_time'''
 
-class User(base):
-    pass
+
