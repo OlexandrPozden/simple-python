@@ -87,18 +87,25 @@ class DbManipulation:
             raise ValueError(f"Expected lenght of fields 1, but got {len(field)}")
     
     @classmethod
-    def get_by_field(cls,**field):
+    def get_by_field(cls,**field)->list:
         """Return list or single object of cls model
         
-        Queries by only one parameter."""
+        Queries by only one parameter.
+        
+        Returns
+        -------
+            list of orm objects"""
         result = cls._get_by_field(**field).all()
-        if len(result) == 1:
-            return result[0]
-        else:
-            return result 
+        return result 
     @classmethod
-    def get_by_fields(cls,**fields):
-        """The same as get_by_field but for many parameters."""
+    def get_by_fields(cls,**fields)->list:
+        """The same as get_by_field but for many parameters.
+        
+        It is only name convention. When you search by only field you use
+        get_by_field method unless you use get_by_fields.
+        Returns
+        -------
+            list of orm objects"""
         result = None
         for field in fields:
             filter = dict([field]) 
@@ -106,11 +113,10 @@ class DbManipulation:
                 result = cls._get_by_field(filter)
             else:
                 result = result.filter(filter)
-        result = result.all()
-        if len(result) == 1:
-            return result[0]
-        else:
-            return result
+        if result:
+            return result.all()
+        return result
+           
     @classmethod
     def delete_by_id(cls,id):
         """Deletes object by id
@@ -418,10 +424,10 @@ class Application(object):
         return self.logout_user(redirect('/'))
     @admin_required
     def admin(self,request):
-        posts = self.get_requested_posts()
+        posts = Post.get_by_field(request_publish=True)
         return self.render_template('admin.html',posts=posts)
     def main(self,request):
-        posts = self.get_all_public_posts()
+        posts = Post.get_by_field(published=True)
         error = ""
         username = None
         # posts = self.read_posts()
@@ -437,14 +443,14 @@ class Application(object):
             password = request.form['password']
             ## check if user already exist
             ## if not register new one
-            user = self.session.query(User).filter_by(username=username).first()
+            user = User.get_by_field(username=username)
             if user:
                 ## need some flash to show this
                 error = "User already registered. Please, use another username."
                 return self.render_template('signup.html', error=error)
             else:
                 new_user = User(username=username, password=generate_password_hash(password, method='sha256'))
-                self.add_user(new_user)
+                User.save(new_user)
                 response = self.login_user(new_user) ## method login_user already returns response
                 return response
         return self.render_template('signup.html')
@@ -458,27 +464,31 @@ class Application(object):
             username = self.identity.username
 
             post = Post(title=title, text=text, request_publish = request_publish, user_id=user_id)
-            self.post_post(post)
+            Post.save(post)
 
             return redirect('/post/%s'%username)
 
         return self.render_template('new_post.html',post=None)
     @login_required
-    def post_edit(self, request, post_id):
+    def post_edit(self, request, post_id:int):
+        
+        post = Post.get_by_id(post_id)
+
         if request.method == 'POST':
             request_publish = bool(request.form.get('request_publish'))
             title = request.form.get('title')
             text = request.form.get('text')
-            self.update_post_by_fields(post_id,
+            
+            post.update(post_id,
             title=title,
             text=text,
             request_publish=request_publish,
             published=False,
             updated_time = datetime.datetime.utcnow()
             )
+
             return redirect('/post/%s'%self.identity.username)
-            #return self.render_template('post.html', post=post)
-        post = self.get_post(post_id)
+            
         if post:
             ## is author of that post
             if post.user_id == self.identity.user_id: 
@@ -488,43 +498,52 @@ class Application(object):
     def post(self, request, post_id):
         is_owner = False
         is_admin = False
-        post = self.get_post(post_id)
+
+        post = Post.get_by_id(post_id)
+
         if post: 
             if self.identity.user_id == post.user_id: 
                 is_owner = True
             is_admin = self.identity.admin
             return self.render_template('post.html', post=post,is_owner=is_owner, is_admin=is_admin)
         return self.render_template('404.html')
+
     @admin_required
     def post_publish(self, request, post_id):
-        post = self.get_post(post_id)
+        post = Post.get_by_id(post_id)
+
         if not post: 
-            return NotFound
+            return NotFound("Post with id '{}' not found.".format(post_id))
         else:
             if not post.request_publish:
                 return redirect('/admin') 
             self.update_post_by_fields(post_id, request_publish=False, published=True, published_time=datetime.datetime.utcnow())
             return redirect('/admin')
+
     @login_required
     def request_publish(self, request, post_id):
-        post = self.get_post(post_id)
+        post = Post.get_by_id(post_id)
         if not post:
-            return NotFound
+            return NotFound("Post with id '{}' not found.".format(post_id))
         if post.published == True:
             return self.render_template('/post/%i'%post_id)
         if self.identity.user_id == post.user_id:
-            self.update_post_by_fields(post_id, request_publish=True, updated_time=datetime.datetime.utcnow())
+
+            post.update(post_id, 
+            request_publish=True, 
+            updated_time=datetime.datetime.utcnow())
+
             response = Response('Requested. Go back<a href="/post/%s">to the list</a>'%self.identity.username, mimetype='text/html')
             response.status_code=200
             return response
         return Forbidden("")
     @login_required
     def post_delete(self, request, post_id):
-        post = self.get_post(post_id)
+        post = Post.get_by_id(post_id)
         if post:
             if self.identity.user_id == post.user_id:
                 if request.method == 'POST':
-                    self.delete_post(post_id)
+                    post.delete()
                     return redirect("/post/%s"%(self.identity.username))
                 else:
                     return Response("Are you sure you want to delete post <i>%s</i>?<br>\
