@@ -80,8 +80,6 @@ class DbManipulation:
             field_name, value  = list(field.items())[0]
             if hasattr(cls, field_name):
                 result = session.query(cls).filter(getattr(cls, field_name) == value)
-                if len(result) == 1:
-                    return result[0]
                 return result 
             else:
                 raise ValueError(f"Field {field_name} does not exist in context of {cls.__name__} model.")
