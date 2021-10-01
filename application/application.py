@@ -238,7 +238,7 @@ def create_admin():
     ## hashing password
     password = generate_password_hash(password, method='sha256')
     ## check if username is already taken
-    if not User.get_by_field(username=username):
+    if not User.get_by_field(username=username)[0]:
         ## create new user with admin privileges
         new_admin = User(username=username, password=password, admin=True)
         User.save(new_admin)
@@ -411,7 +411,7 @@ class Application(object):
             password = request.form.get('password','')
 
             #user = self.get_user_by_name(username)
-            user = User.get_by_field(username=username)
+            user = User.get_by_field(username=username)[0] ## we use substracting, because result is list
             if not user or not check_password_hash(user.password, password): 
                 error = "Wrong credentials."
                 return self.render_template('login.html', error=error)
@@ -427,7 +427,7 @@ class Application(object):
         posts = Post.get_by_field(request_publish=True)
         return self.render_template('admin.html',posts=posts)
     def main(self,request):
-        posts = Post.get_by_field(published=True)
+        posts = Post.full_details(published=True)
         error = ""
         username = None
         # posts = self.read_posts()
@@ -443,7 +443,7 @@ class Application(object):
             password = request.form['password']
             ## check if user already exist
             ## if not register new one
-            user = User.get_by_field(username=username)
+            user = User.get_by_field(username=username)[0]
             if user:
                 ## need some flash to show this
                 error = "User already registered. Please, use another username."
@@ -479,7 +479,7 @@ class Application(object):
             title = request.form.get('title')
             text = request.form.get('text')
             
-            post.update(post_id,
+            post.update(
             title=title,
             text=text,
             request_publish=request_publish,
@@ -517,7 +517,11 @@ class Application(object):
         else:
             if not post.request_publish:
                 return redirect('/admin') 
-            self.update_post_by_fields(post_id, request_publish=False, published=True, published_time=datetime.datetime.utcnow())
+
+            post.update(request_publish=False,
+            published=True, 
+            published_time=datetime.datetime.utcnow())
+
             return redirect('/admin')
 
     @login_required
@@ -529,7 +533,7 @@ class Application(object):
             return self.render_template('/post/%i'%post_id)
         if self.identity.user_id == post.user_id:
 
-            post.update(post_id, 
+            post.update( 
             request_publish=True, 
             updated_time=datetime.datetime.utcnow())
 
@@ -554,15 +558,16 @@ class Application(object):
         else:
             return NotAcceptable("Invalid data.")
     def authors(self,request):
-        users = self.get_all_authors()
+        ## HERE
+        users = Post.full_details(published=True)
         return self.render_template('popular_authors.html', users=users)
     @login_required
     def users_posts(self, request, authorname):
-        print('authorname',authorname)
         posts = []
         is_owner = False
-        author = self.get_user_by_name(authorname)
-        print(author)
+
+        author = User.get_by_field(username = authorname)[0]
+        
         if author:
             ## select all posts from that author
 
@@ -570,7 +575,8 @@ class Application(object):
                 is_owner = True
                 posts = self.get_posts_by_user_id(author.user_id)
             else:
-                posts = self.get_public_posts_by_user_id(author.user_id)
+                ## HERE
+                posts = Post.query().join().filter(User.user_id == author.user_id, Post.published == True).order_by(Post.published_time.desc()).all()
             return self.render_template('users_posts.html', posts=posts, is_owner=is_owner)
         return self.render_template('404.html')
     ## database calls
