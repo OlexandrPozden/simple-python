@@ -257,7 +257,7 @@ class DbPostManipulation(DbManipulation):
         return all_posts.all()
 
 ## MODELS
-class User(base,DbManipulation):
+class User(base,DbUserManipulation):
     __tablename__ = 'users'
     user_id = Column(Integer, primary_key=True, autoincrement=True)
     username = Column(String, nullable=False, unique=True)
@@ -269,7 +269,7 @@ class User(base,DbManipulation):
             return '<Admin username\'%r\'>' % self.username
         return '<User username=\'%r\'>' % self.username
     
-class Post(base,DbManipulation):
+class Post(base,DbPostManipulation):
     __tablename__ = 'posts'
     post_id = Column(Integer, primary_key=True, autoincrement=True)
     title = Column(String)

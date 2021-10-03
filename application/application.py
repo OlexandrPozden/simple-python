@@ -318,93 +318,93 @@ class Application(object):
         return self.render_template('404.html')
     ## database calls
 
-    ## done
-    def create_admin(self,username:str, password:str)->None:
-        ## hash password
-        password = generate_password_hash(password, method='sha256') 
-        print('Creating <admin %r>...'%username)
-        admin = User(username=username, password=password, admin=True)
-        self.add_user(admin)
-    ## done
-    def get_user_by_id(self, id):
-        return self.session.query(User).filter_by(user_id=id).first()
-    ## done
-    def get_user_by_name(self, name):
-        return self.session.query(User).filter_by(username=name).first()
-    ## done
-    def add_user(self, user:User)-> None:
-        self.session.add(user)
-        self.session.commit()
-    ## done - but add sort method
-    def get_all_authors(self):
-        sql_query = text("SELECT username, count(*) as amount\
-                                        FROM posts\
-                                        INNER JOIN users on users.user_id = posts.user_id\
-                                        WHERE published=1\
-                                        GROUP BY posts.user_id\
-                                        ORDER BY amount;")
-        result = self.session.execute(sql_query)
-        return result
-    ## done
-    def get_post(self, post_id):
-        post = self.session.query(Post).filter_by(post_id=post_id).first()
-        return post
-    ## done
-    def post_post(self,post:Post)->None:
-        self.session.add(post)
-        self.session.commit()
-    ## done
-    def read_posts(self):
-        posts = self.session.query(Post)
-        return [p for p in posts]
-    ## done
-    def get_requested_posts(self):
-        return self.session.query(Post).filter_by(request_publish=True).all()
-    ## done
-    def get_all_public_posts(self):
-        result = self.session.query(Post.post_id,Post.title,Post.text, Post.published_time,User.username).join(User).filter(Post.published == True)
-        print(result)
-        for row in result:
-            print(row)
-        return [row for row in result]
-    ## done
-    def get_public_posts_by_user_id(self, user_id):
-        return self.session.query(Post).filter_by(user_id = user_id, published = True).all()
-    ## done
-    def get_posts_by_user_id(self, user_id):
-        posts = self.session.query(Post).filter(Post.user_id == user_id).all()
-        print("author posts:",posts)
-        return [p for p in posts]
-    ## done
-    def update_post_by_fields(self, post_id, **kwargs):
-        print("updating post with id", post_id)
-        post = self.session.query(Post).filter_by(post_id=post_id).first()
-        for attr, value in kwargs.items():
-            setattr(post, attr, value)
-        for attr in kwargs:
-            print(getattr(post, attr))
-        self.session.commit()
+    # ## done
+    # def create_admin(self,username:str, password:str)->None:
+    #     ## hash password
+    #     password = generate_password_hash(password, method='sha256') 
+    #     print('Creating <admin %r>...'%username)
+    #     admin = User(username=username, password=password, admin=True)
+    #     self.add_user(admin)
+    # ## done
+    # def get_user_by_id(self, id):
+    #     return self.session.query(User).filter_by(user_id=id).first()
+    # ## done
+    # def get_user_by_name(self, name):
+    #     return self.session.query(User).filter_by(username=name).first()
+    # ## done
+    # def add_user(self, user:User)-> None:
+    #     self.session.add(user)
+    #     self.session.commit()
+    # ## done - but add sort method
+    # def get_all_authors(self):
+    #     sql_query = text("SELECT username, count(*) as amount\
+    #                                     FROM posts\
+    #                                     INNER JOIN users on users.user_id = posts.user_id\
+    #                                     WHERE published=1\
+    #                                     GROUP BY posts.user_id\
+    #                                     ORDER BY amount;")
+    #     result = self.session.execute(sql_query)
+    #     return result
+    # ## done
+    # def get_post(self, post_id):
+    #     post = self.session.query(Post).filter_by(post_id=post_id).first()
+    #     return post
+    # ## done
+    # def post_post(self,post:Post)->None:
+    #     self.session.add(post)
+    #     self.session.commit()
+    # ## done
+    # def read_posts(self):
+    #     posts = self.session.query(Post)
+    #     return [p for p in posts]
+    # ## done
+    # def get_requested_posts(self):
+    #     return self.session.query(Post).filter_by(request_publish=True).all()
+    # ## done
+    # def get_all_public_posts(self):
+    #     result = self.session.query(Post.post_id,Post.title,Post.text, Post.published_time,User.username).join(User).filter(Post.published == True)
+    #     print(result)
+    #     for row in result:
+    #         print(row)
+    #     return [row for row in result]
+    # ## done
+    # def get_public_posts_by_user_id(self, user_id):
+    #     return self.session.query(Post).filter_by(user_id = user_id, published = True).all()
+    # ## done
+    # def get_posts_by_user_id(self, user_id):
+    #     posts = self.session.query(Post).filter(Post.user_id == user_id).all()
+    #     print("author posts:",posts)
+    #     return [p for p in posts]
+    # ## done
+    # def update_post_by_fields(self, post_id, **kwargs):
+    #     print("updating post with id", post_id)
+    #     post = self.session.query(Post).filter_by(post_id=post_id).first()
+    #     for attr, value in kwargs.items():
+    #         setattr(post, attr, value)
+    #     for attr in kwargs:
+    #         print(getattr(post, attr))
+    #     self.session.commit()
 
-    # def update_post(self, post:Post): ## deprecated ## does not work
-    #     post_id = post.post_id
-    #     try:
-    #         old_post = self.session.query(Post).filter_by(post_id=post_id).first()
-    #         old_post.title = post.title
-    #         old_post.text = post.text
-    #         old_post.request_publish = post.request_publish
-    #         old_post.published = post.published
-    #         old_post.updated_time = post.updated_time
-    #         old_post.published_time = post.published_time
-    #         self.session.commit()
-    #     except:
-    #         print("Post with post id: %s does not exist" % post_id)
-    ## done
-    def delete_post(self, post_id):
-        self.session.query(Post).filter_by(post_id=post_id).delete()
-        self.session.commit()
+    # # def update_post(self, post:Post): ## deprecated ## does not work
+    # #     post_id = post.post_id
+    # #     try:
+    # #         old_post = self.session.query(Post).filter_by(post_id=post_id).first()
+    # #         old_post.title = post.title
+    # #         old_post.text = post.text
+    # #         old_post.request_publish = post.request_publish
+    # #         old_post.published = post.published
+    # #         old_post.updated_time = post.updated_time
+    # #         old_post.published_time = post.published_time
+    # #         self.session.commit()
+    # #     except:
+    # #         print("Post with post id: %s does not exist" % post_id)
+    # ## done
+    # def delete_post(self, post_id):
+    #     self.session.query(Post).filter_by(post_id=post_id).delete()
+    #     self.session.commit()
 
 
-    ## additional server functionality
+     ## additional server functionality
     def _dispatch_request(self,request):
         endpoint_to_views={
             "index":self.index,
