@@ -29,6 +29,8 @@ from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base  
 from sqlalchemy import Column, String, Integer, Boolean, Date, DateTime, ForeignKey  
 
+from werkzeug.security import generate_password_hash
+
 base = declarative_base()
 engine = create_engine('sqlite:///test.db', echo=False)
 Session = sessionmaker(engine)  
@@ -219,6 +221,12 @@ class User(base,DbManipulation):
         if self.admin:
             return '<Admin username\'%r\'>' % self.username
         return '<User username=\'%r\'>' % self.username
+    @classmethod
+    def get_user(cls, **kwargs):
+        u = User.get_by_field(**kwargs)
+        if u:
+            return u[0]
+        return u
 def create_admin():
     username = input("username: ")
     password = getpass.getpass("password: ")

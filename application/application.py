@@ -129,7 +129,7 @@ class Application(object):
             if payload:
                 user_id = payload.get('sub','')
                 username = payload.get('username','')
-                user = self.get_user_by_id(user_id)
+                user = User.get_by_id(user_id)
                 if user:
                     if user.username == username:
                         self.identity = user
@@ -147,7 +147,7 @@ class Application(object):
             password = request.form.get('password','')
 
             #user = self.get_user_by_name(username)
-            user = User.get_by_field(username=username)[0] ## we use substracting, because result is list
+            user = User.get_user(username=username) ## we use substracting, because result is list
             if not user or not check_password_hash(user.password, password): 
                 error = "Wrong credentials."
                 return self.render_template('login.html', error=error)
@@ -179,7 +179,7 @@ class Application(object):
             password = request.form['password']
             ## check if user already exist
             ## if not register new one
-            user = User.get_by_field(username=username)[0]
+            user = User.get_user(username=username)
             if user:
                 ## need some flash to show this
                 error = "User already registered. Please, use another username."
@@ -310,10 +310,10 @@ class Application(object):
 
             if self.identity.user_id == author.user_id:
                 is_owner = True
-                posts = self.get_posts_by_user_id(author.user_id)
+                posts = Post.get_by_field(user_id=author.user_id)
             else:
                 ## HERE
-                posts = Post.query().join().filter(User.user_id == author.user_id, Post.published == True).order_by(Post.published_time.desc()).all()
+                posts = Post.query().join(User).filter(User.user_id == author.user_id, Post.published == True).order_by(Post.published_time.desc()).all()
             return self.render_template('users_posts.html', posts=posts, is_owner=is_owner)
         return self.render_template('404.html')
     ## database calls
