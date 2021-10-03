@@ -210,48 +210,14 @@ class DbManipulation:
         >>>"""
         return session.query(cls).filter()
 
-class User(base,DbManipulation):
-    __tablename__ = 'users'
-    user_id = Column(Integer, primary_key=True, autoincrement=True)
-    username = Column(String, nullable=False, unique=True)
-    password = Column(String, nullable=False)
-    admin = Column(Boolean, nullable=False, default=False)
-
-    def __repr__(self):
-        if self.admin:
-            return '<Admin username\'%r\'>' % self.username
-        return '<User username=\'%r\'>' % self.username
+class DbUserManipulation(DbManipulation):
     @classmethod
     def get_user(cls, **kwargs):
         u = User.get_by_field(**kwargs)
         if u:
             return u[0]
         return u
-def create_admin():
-    username = input("username: ")
-    password = getpass.getpass("password: ")
-    ## hashing password
-    password = generate_password_hash(password, method='sha256')
-    ## check if username is already taken
-    if not User.get_by_field(username=username)[0]:
-        ## create new user with admin privileges
-        new_admin = User(username=username, password=password, admin=True)
-        User.save(new_admin)
-        print("Admin successfuly created!")
-    else:
-        raise Exception(f"User with username {username} already exists.")
-class Post(base,DbManipulation):
-    __tablename__ = 'posts'
-    post_id = Column(Integer, primary_key=True, autoincrement=True)
-    title = Column(String)
-    text = Column(String, nullable=False)
-    user_id = Column(Integer, ForeignKey('users.user_id', ondelete="DELETE"))
-    published = Column(Boolean, default=False, nullable=False)
-    request_publish = Column(Boolean, default=False, nullable=False)
-    published_time = Column(DateTime)
-    created_time = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
-    updated_time = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
-    
+class DbPostManipulation(DbManipulation):
     @classmethod
     def full_details(cls, **filter):
         """Returns details about post with the given filter
@@ -289,6 +255,45 @@ class Post(base,DbManipulation):
         for attr, value in filter.items():
             all_posts = all_posts.filter(getattr(Post, attr)==value)
         return all_posts.all()
-        
+
+## MODELS
+class User(base,DbManipulation):
+    __tablename__ = 'users'
+    user_id = Column(Integer, primary_key=True, autoincrement=True)
+    username = Column(String, nullable=False, unique=True)
+    password = Column(String, nullable=False)
+    admin = Column(Boolean, nullable=False, default=False)
+
+    def __repr__(self):
+        if self.admin:
+            return '<Admin username\'%r\'>' % self.username
+        return '<User username=\'%r\'>' % self.username
+    
+class Post(base,DbManipulation):
+    __tablename__ = 'posts'
+    post_id = Column(Integer, primary_key=True, autoincrement=True)
+    title = Column(String)
+    text = Column(String, nullable=False)
+    user_id = Column(Integer, ForeignKey('users.user_id', ondelete="DELETE"))
+    published = Column(Boolean, default=False, nullable=False)
+    request_publish = Column(Boolean, default=False, nullable=False)
+    published_time = Column(DateTime)
+    created_time = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
+    updated_time = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
+            
     def __repr__(self):
         return '<Post post_id=\'%r\'>' % self.post_id
+
+def create_admin():
+    username = input("username: ")
+    password = getpass.getpass("password: ")
+    ## hashing password
+    password = generate_password_hash(password, method='sha256')
+    ## check if username is already taken
+    if not User.get_by_field(username=username)[0]:
+        ## create new user with admin privileges
+        new_admin = User(username=username, password=password, admin=True)
+        User.save(new_admin)
+        print("Admin successfuly created!")
+    else:
+        raise Exception(f"User with username {username} already exists.")
