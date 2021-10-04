@@ -36,6 +36,8 @@ import datetime
 
 from .models import User, Post
 
+from . import views
+
 
 def admin_required(fun):
     def wrapper(*args, **kwargs):
@@ -426,6 +428,9 @@ class Application(object):
         adapter = self.url_map.bind_to_environ(request.environ)
         try:
             endpoint, values = adapter.match()
+            # handler = getattr(views, endpoint)
+            # response = handler(request, **values)
+            # return response
             return endpoint_to_views[endpoint](request,**values)
         except NotFound:
             return self.render_template('404.html')
