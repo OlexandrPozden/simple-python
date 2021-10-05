@@ -30,7 +30,7 @@ import os
 from jinja2 import Environment
 from jinja2 import FileSystemLoader
 
-import jwt
+from .utils import Auth, Identity
 
 import datetime
 
@@ -38,40 +38,41 @@ from .models import User, Post
 
 from . import views
 
+## REMOVE
+# def admin_required(fun):
+#     def wrapper(*args, **kwargs):
+#         self = args[0]
+#         if self.identity:
+#             if self.identity.admin:
+#                 return fun(*args, **kwargs)
+#         return Forbidden('Only users with admin permission can reach this page.')
+#     return wrapper
+# def login_required(fun): 
+#     def wrapper(*args, **kwargs):
+#         self = args[0]
+#         request = args[1]
+#         if self.identity.logged_in:
+#             return fun(*args, **kwargs)
+#         else:
+#             self.turn_back_to = request.path
+#             return redirect('/login')
+#     return wrapper
+## REMOVE
+# def create_token(payload):
+#     payload['exp'] = datetime.datetime.utcnow()+datetime.timedelta(seconds=300)
+#     token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
+#     return token
 
-def admin_required(fun):
-    def wrapper(*args, **kwargs):
-        self = args[0]
-        if self.identity:
-            if self.identity.admin:
-                return fun(*args, **kwargs)
-        return Forbidden('Only users with admin permission can reach this page.')
-    return wrapper
-def login_required(fun): 
-    def wrapper(*args, **kwargs):
-        self = args[0]
-        request = args[1]
-        if self.identity.logged_in:
-            return fun(*args, **kwargs)
-        else:
-            self.turn_back_to = request.path
-            return redirect('/login')
-    return wrapper
-def create_token(payload):
-    payload['exp'] = datetime.datetime.utcnow()+datetime.timedelta(seconds=300)
-    token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
-    return token
-
-def payload_from_token(token):
-    payload = {}
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
-        print("Token is still valid and active")
-    except jwt.ExpiredSignatureError:
-        print("Token expired. Get new one")
-    except jwt.InvalidTokenError:
-        print("Invalid Token")
-    return payload
+# def payload_from_token(token):
+#     payload = {}
+#     try:
+#         payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+#         print("Token is still valid and active")
+#     except jwt.ExpiredSignatureError:
+#         print("Token expired. Get new one")
+#     except jwt.InvalidTokenError:
+#         print("Invalid Token")
+#     return payload
 
 class Application(object):
     def __init__(self, config=None):
@@ -80,61 +81,65 @@ class Application(object):
         self.jinja_env = Environment(
             loader=FileSystemLoader(template_path), autoescape=True
         )
-        self.url_map = Map(
-            [
-                Rule("/", endpoint="index"),
-                Rule("/login", endpoint="login"),
-                Rule("/main", endpoint="main"),
-                Rule('/signup', endpoint="signup"),
-                Rule('/admin', endpoint="admin"),
-                Rule('/logout', endpoint="logout"),
-                Rule('/about', endpoint="about"),
-                Rule('/post', endpoint="main"),
-                Rule('/post/<int:post_id>', endpoint="post"),
-                Rule('/post/<int:post_id>/edit', endpoint="post/edit"),
-                Rule('/post/new', endpoint="post/new"),
-                Rule('/post/<string:authorname>', endpoint="post/authorname"),
-                Rule('/post/<int:post_id>/request_publish', endpoint="post/request_publish"),
-                Rule('/post/<int:post_id>/publish', endpoint="post/publish"),
-                Rule('/post/<int:post_id>/delete', endpoint="post/delete"),
-                Rule('/authors', endpoint="authors")
-            ]
-        )
-        self.turn_back_to = "" ## turn back to page where user was redirected from
-        
-        self.identity = None ## <class 'User'> if logged in
+        ## REMOVE
+        # self.url_map = Map(
+        #     [
+        #         Rule("/", endpoint="index"),
+        #         Rule("/login", endpoint="login"),
+        #         Rule("/main", endpoint="main"),
+        #         Rule('/signup', endpoint="signup"),
+        #         Rule('/admin', endpoint="admin"),
+        #         Rule('/logout', endpoint="logout"),
+        #         Rule('/about', endpoint="about"),
+        #         Rule('/post', endpoint="main"),
+        #         Rule('/post/<int:post_id>', endpoint="post"),
+        #         Rule('/post/<int:post_id>/edit', endpoint="post/edit"),
+        #         Rule('/post/new', endpoint="post/new"),
+        #         Rule('/post/<string:authorname>', endpoint="post/authorname"),
+        #         Rule('/post/<int:post_id>/request_publish', endpoint="post/request_publish"),
+        #         Rule('/post/<int:post_id>/publish', endpoint="post/publish"),
+        #         Rule('/post/<int:post_id>/delete', endpoint="post/delete"),
+        #         Rule('/authors', endpoint="authors")
+        #     ]
+        # )
 
-    ## custom functions
-    @property
-    def path_to_turn_back(self):
-        if self.turn_back_to:
-            path = self.turn_back_to
-            self.turn_back_to = ""
-            return path
-        return self.turn_back_to
-    def login_user(self, user, redirect_to=None):
-        token = create_token(self._create_payload_from_user(user))
-        response = redirect(self.path_to_turn_back or redirect_to or '/main')
-        response.set_cookie("token",token)
-        return response
-    def logout_user(self, response:Response)->Response:
-        if self.identity:
-            self.identity = None
-            response.delete_cookie("token")
-        return response
-    def _create_payload_from_user(self, user:User)->dict:
-        return {'sub':user.user_id,'username':user.username}
-    def _identity_check(self, request):
-        token = request.cookies.get('token', None)
-        if token:
-            payload = payload_from_token(token)
-            if payload:
-                user_id = payload.get('sub','')
-                username = payload.get('username','')
-                user = User.get_by_id(user_id)
-                if user:
-                    if user.username == username:
-                        self.identity = user
+        ## REMOVE UPDATE
+        # self.turn_back_to = "" ## turn back to page where user was redirected from
+        
+        # self.identity = None ## <class 'User'> if logged in
+
+    ## REMOVE
+    # ## custom functions
+    # @property
+    # def path_to_turn_back(self):
+    #     if self.turn_back_to:
+    #         path = self.turn_back_to
+    #         self.turn_back_to = ""
+    #         return path
+    #     return self.turn_back_to
+    # def login_user(self, user, redirect_to=None):
+    #     token = create_token(self._create_payload_from_user(user))
+    #     response = redirect(self.path_to_turn_back or redirect_to or '/main')
+    #     response.set_cookie("token",token)
+    #     return response
+    # def logout_user(self, response:Response)->Response:
+    #     if self.identity:
+    #         self.identity = None
+    #         response.delete_cookie("token")
+    #     return response
+    # def _create_payload_from_user(self, user:User)->dict:
+    #     return {'sub':user.user_id,'username':user.username}
+    # def _identity_check(self, request):
+    #     token = request.cookies.get('token', None)
+    #     if token:
+    #         payload = payload_from_token(token)
+    #         if payload:
+    #             user_id = payload.get('sub','')
+    #             username = payload.get('username','')
+    #             user = User.get_by_id(user_id)
+    #             if user:
+    #                 if user.username == username:
+    #                     self.identity = user
 
 
     ## views     
@@ -459,90 +464,4 @@ def create_app(with_static=True):
         )
     return app
 
-class AuthSettings:
-    SECRET_KEY = 'k4Ndh1r6af5SZVnGitY82lpjK646apEnOAnc5lhW'
-    USER_MODEL = User
-    ALGORITHM = 'HS256'
-    EXPIRATION_TIME = 300 ## in seconds
-    TOKEN_NAME = 'token'
-
-class JWTmanager(AuthSettings):
-    def __init__(self, secret_key:str=None, algorithm:str=None, expiration_time:int=None):
-        self.secret_key = self.SECRET_KEY if not secret_key else secret_key
-        self.algorithm = self.ALGORITHM if not algorithm else algorithm
-        self.expiration_time = self.EXPIRATION_TIME if not expiration_time else expiration_time
-    def create_token(self,payload:dict)->str:
-        if isinstance(payload,dict):
-            payload['exp'] = datetime.datetime.utcnow()+datetime.timedelta(seconds=self.expiration_time)
-            token = jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
-            return token
-        else:
-            raise ValueError(f"Paylod should be instance of dict.")
-    def get_payload(self,token):
-        payload = {'error':0}
-        try:
-            decoded = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
-            payload.update(decoded)
-        except jwt.ExpiredSignatureError:
-            payload["error"]="Token expired. Get new one"
-        except jwt.InvalidTokenError:
-            payload["error"]="Invalid Token"
-        return payload
-    def _create_payload(self, user)->dict:
-        return {'sub':user.user_id,'username':user.username}
-
-class Identity(AuthSettings):
-    """Obtain request identity information
-    
-    From Request object it looks for cookie field 'token', decrypts it and
-    inditificates client who send request."""
-
-    def __init__(self, request:Request, secret_key:str=SECRET_KEY):
-        self.username = ""
-        self.user_id = ""
-        self.logged_in = False
-        self.admin = False
-
-        self.token = request.cookies.get(self.TOKEN_NAME, None)
-
-        self.jwtmanager = JWTmanager(self.SECRET_KEY if not secret_key else secret_key)
-
-        if self.token:
-            self._check_identity()
-    def _get_payload(self):
-        return self.jwtmanager.get_payload(self.token)
-    def _check_identity(self):
-        payload = self._get_payload()
-        if not payload['error']:
-            self.username = payload['username']
-            self.user_id = payload['sub']
-            self.logged_in = True
-            self.admin = self._is_admin()
-    def _is_admin(self):
-        if self.user_id:
-            user = self.USER_MODEL.get_by_id(self.user_id)
-            return user.admin
-
-class Auth(AuthSettings):
-    jwtmanager = JWTmanager()
-    @classmethod
-    def login_user(cls, user, response:Response=None)->Response:
-        """Logins User
-        
-        Pass User object."""
-        if not response:
-            response = Response()
-        if isinstance(user,cls.USER_MODEL):
-            payload = cls.jwtmanager._create_payload(user)
-            token = cls.jwtmanager.create_token(payload)
-            response.set_cookie(cls.TOKEN_NAME,token)
-        else:
-            raise ValueError(f"{user} is not instance of {cls.USER_MODEL}")
-        return response
-    @classmethod
-    def logout_user(cls, user, response:Response=None)->Response:
-        if not response:
-            response = Response()
-        response.delete_cookie(cls.TOKEN_NAME,None)
-        return response
 
