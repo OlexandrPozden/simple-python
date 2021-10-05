@@ -51,7 +51,7 @@ def login_required(fun):
     def wrapper(*args, **kwargs):
         self = args[0]
         request = args[1]
-        if self.identity:
+        if self.identity.logged_in:
             return fun(*args, **kwargs)
         else:
             self.turn_back_to = request.path
@@ -155,7 +155,7 @@ class Application(object):
                 return self.render_template('login.html', error=error)
             else:
                 ## return token and render template
-                response = self.login_user(user)
+                response = Auth.login_user(user)
                 return response
         return self.render_template('login.html', error=error)
     def logout(self,request):
@@ -428,16 +428,17 @@ class Application(object):
         adapter = self.url_map.bind_to_environ(request.environ)
         try:
             endpoint, values = adapter.match()
-            handler = getattr(views, endpoint)
-            response = handler(request, **values)
-            return response
-            # return endpoint_to_views[endpoint](request,**values)
+            # handler = getattr(views, endpoint)
+            # response = handler(request, **values)
+            # return response
+            return endpoint_to_views[endpoint](request,**values)
         except NotFound:
             return self.render_template('404.html')
         except HTTPException as e:
             return e    
     def dispatch_request(self,request):
-        self._identity_check(request)
+        identity = Identity(request)
+        request.identity = identity
         return self._dispatch_request(request)
     def render_template(self, template_name, **context):
         t = self.jinja_env.get_template(template_name)
@@ -465,7 +466,7 @@ class AuthSettings:
     EXPIRATION_TIME = 300 ## in seconds
     TOKEN_NAME = 'token'
 
-class JWTToken(AuthSettings):
+class JWTmanager(AuthSettings):
     def __init__(self, secret_key:str=None, algorithm:str=None, expiration_time:int=None):
         self.secret_key = self.SECRET_KEY if not secret_key else secret_key
         self.algorithm = self.ALGORITHM if not algorithm else algorithm
@@ -487,6 +488,9 @@ class JWTToken(AuthSettings):
         except jwt.InvalidTokenError:
             payload["error"]="Invalid Token"
         return payload
+    def _create_payload(self, user)->dict:
+        return {'sub':user.user_id,'username':user.username}
+
 class Identity(AuthSettings):
     """Obtain request identity information
     
@@ -501,12 +505,12 @@ class Identity(AuthSettings):
 
         self.token = request.cookies.get(self.TOKEN_NAME, None)
 
-        self.jwttoken = JWTToken(self.SECRET_KEY if not secret_key else secret_key)
+        self.jwtmanager = JWTmanager(self.SECRET_KEY if not secret_key else secret_key)
 
         if self.token:
             self._check_identity()
     def _get_payload(self):
-        return self.jwttoken.get_payload(self.token)
+        return self.jwtmanager.get_payload(self.token)
     def _check_identity(self):
         payload = self._get_payload()
         if not payload['error']:
@@ -519,8 +523,8 @@ class Identity(AuthSettings):
             user = self.USER_MODEL.get_by_id(self.user_id)
             return user.admin
 
-class Auth(JWTToken):
-
+class Auth(AuthSettings):
+    jwtmanager = JWTmanager()
     @classmethod
     def login_user(cls, user, response:Response=None)->Response:
         """Logins User
@@ -529,8 +533,8 @@ class Auth(JWTToken):
         if not response:
             response = Response()
         if isinstance(user,cls.USER_MODEL):
-            payload = cls._create_payload(user)
-            token = cls.create_token(payload)
+            payload = cls.jwtmanager._create_payload(user)
+            token = cls.jwtmanager.create_token(payload)
             response.set_cookie(cls.TOKEN_NAME,token)
         else:
             raise ValueError(f"{user} is not instance of {cls.USER_MODEL}")
@@ -541,6 +545,3 @@ class Auth(JWTToken):
             response = Response()
         response.delete_cookie(cls.TOKEN_NAME,None)
         return response
-    @classmethod
-    def _create_payload(cls, user)->dict:
-        return {'sub':user.user_id,'username':user.username}
