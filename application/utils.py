@@ -1,6 +1,7 @@
 from werkzeug.routing import Map
 from werkzeug.routing import Rule
 from werkzeug.wrappers import Response
+from werkzeug.exceptions import Forbidden
 
 from jinja2 import Environment
 from jinja2 import FileSystemLoader
@@ -26,3 +27,18 @@ def render_template(template, **context):
     return Response(
         jinja_env.get_template(template).render(**context), mimetype="text/html"
     )
+
+def login_required(fun):
+    def wrapper(request):
+        if request.identity.logged_in:
+            return fun(request)
+        else:
+            return render_template("login_required.html")
+    return wrapper
+
+def admin_required(fun):
+    def wrapper(request):
+        if request.identity.admin:
+            return fun(request)
+        else:
+            return Forbidden("Only users with admin rights can access this page.")

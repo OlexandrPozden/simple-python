@@ -154,8 +154,8 @@ class Application(object):
                 error = "Wrong credentials."
                 return self.render_template('login.html', error=error)
             else:
-                ## return token and render template
-                response = Auth.login_user(user)
+                ## return token and render template   
+                response = Auth.login_user(user,redirect("/main"))
                 return response
         return self.render_template('login.html', error=error)
     def logout(self,request):
@@ -545,3 +545,4 @@ class Auth(AuthSettings):
             response = Response()
         response.delete_cookie(cls.TOKEN_NAME,None)
         return response
+
