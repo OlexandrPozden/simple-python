@@ -464,6 +464,7 @@ class AuthSettings:
     ALGORITHM = 'HS256'
     EXPIRATION_TIME = 300 ## in seconds
     TOKEN_NAME = 'token'
+
 class JWTToken(AuthSettings):
     def __init__(self, secret_key:str=None, algorithm:str=None, expiration_time:int=None):
         self.secret_key = self.SECRET_KEY if not secret_key else secret_key
@@ -517,3 +518,29 @@ class Identity(AuthSettings):
         if self.user_id:
             user = self.USER_MODEL.get_by_id(self.user_id)
             return user.admin
+
+class Auth(JWTToken):
+
+    @classmethod
+    def login_user(cls, user, response:Response=None)->Response:
+        """Logins User
+        
+        Pass User object."""
+        if not response:
+            response = Response()
+        if isinstance(user,cls.USER_MODEL):
+            payload = cls._create_payload(user)
+            token = cls.create_token(payload)
+            response.set_cookie(cls.TOKEN_NAME,token)
+        else:
+            raise ValueError(f"{user} is not instance of {cls.USER_MODEL}")
+        return response
+    @classmethod
+    def logout_user(cls, user, response:Response=None)->Response:
+        if not response:
+            response = Response()
+        response.delete_cookie(cls.TOKEN_NAME,None)
+        return response
+    @classmethod
+    def _create_payload(cls, user)->dict:
+        return {'sub':user.user_id,'username':user.username}
