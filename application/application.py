@@ -1,7 +1,7 @@
 from sqlalchemy.sql.functions import user
 from werkzeug.wrappers import Request, Response
-
-SECRET_KEY = 'k4Ndh1r6af5SZVnGitY82lpjK646apEnOAnc5lhW'
+## REMOVE
+#SECRET_KEY = 'k4Ndh1r6af5SZVnGitY82lpjK646apEnOAnc5lhW'
 
 # @Request.application
 # def application(request):
@@ -141,188 +141,188 @@ class Application(object):
     #                 if user.username == username:
     #                     self.identity = user
 
+    ## REMOVE CAUTION
+    # ## views     
+    # def index(self,request):
+    #     return self.render_template('index.html')
+    # def about(self,request):
+    #     return self.render_template('about.html')
+    # def login(self,request):
+    #     error=""
+    #     if request.method == 'POST':
+    #         username = request.form.get('username','')
+    #         password = request.form.get('password','')
 
-    ## views     
-    def index(self,request):
-        return self.render_template('index.html')
-    def about(self,request):
-        return self.render_template('about.html')
-    def login(self,request):
-        error=""
-        if request.method == 'POST':
-            username = request.form.get('username','')
-            password = request.form.get('password','')
+    #         #user = self.get_user_by_name(username)
+    #         user = User.get_user(username=username) ## we use substracting, because result is list
+    #         if not user or not check_password_hash(user.password, password): 
+    #             error = "Wrong credentials."
+    #             return self.render_template('login.html', error=error)
+    #         else:
+    #             ## return token and render template   
+    #             response = Auth.login_user(user,redirect("/main"))
+    #             return response
+    #     return self.render_template('login.html', error=error)
+    # def logout(self,request):
+    #     return self.logout_user(redirect('/'))
+    # def main(self,request):
+    #     posts = Post.full_details(published=True)
+    #     error = ""
+    #     username = None
+    #     # posts = self.read_posts()
 
-            #user = self.get_user_by_name(username)
-            user = User.get_user(username=username) ## we use substracting, because result is list
-            if not user or not check_password_hash(user.password, password): 
-                error = "Wrong credentials."
-                return self.render_template('login.html', error=error)
-            else:
-                ## return token and render template   
-                response = Auth.login_user(user,redirect("/main"))
-                return response
-        return self.render_template('login.html', error=error)
-    def logout(self,request):
-        return self.logout_user(redirect('/'))
-    @admin_required
-    def admin(self,request):
-        posts = Post.get_by_field(request_publish=True)
-        return self.render_template('admin.html',posts=posts)
-    def main(self,request):
-        posts = Post.full_details(published=True)
-        error = ""
-        username = None
-        # posts = self.read_posts()
-
-        if self.identity:
-            username = self.identity.username
-        return self.render_template('main.html', posts=posts, error=error, username=username)
+    #     if self.identity:
+    #         username = self.identity.username
+    #     return self.render_template('main.html', posts=posts, error=error, username=username)
     
-    def signup(self,request):
-        error = ''
-        if request.method == 'POST':
-            username = request.form['username']
-            password = request.form['password']
-            ## check if user already exist
-            ## if not register new one
-            user = User.get_user(username=username)
-            if user:
-                ## need some flash to show this
-                error = "User already registered. Please, use another username."
-                return self.render_template('signup.html', error=error)
-            else:
-                new_user = User(username=username, password=generate_password_hash(password, method='sha256'))
-                User.save(new_user)
-                response = self.login_user(new_user) ## method login_user already returns response
-                return response
-        return self.render_template('signup.html')
-    @login_required
-    def post_new(self, request):
-        if request.method == 'POST':
-            title = request.form.get('title')
-            text = request.form.get('text')
-            request_publish = bool(request.form.get('request_publish'))
-            user_id = self.identity.user_id
-            username = self.identity.username
+    # def signup(self,request):
+    #     error = ''
+    #     if request.method == 'POST':
+    #         username = request.form['username']
+    #         password = request.form['password']
+    #         ## check if user already exist
+    #         ## if not register new one
+    #         user = User.get_user(username=username)
+    #         if user:
+    #             ## need some flash to show this
+    #             error = "User already registered. Please, use another username."
+    #             return self.render_template('signup.html', error=error)
+    #         else:
+    #             new_user = User(username=username, password=generate_password_hash(password, method='sha256'))
+    #             User.save(new_user)
+    #             response = self.login_user(new_user) ## method login_user already returns response
+    #             return response
+    #     return self.render_template('signup.html')
+    # @admin_required
+    # def admin(self,request):
+    #     posts = Post.get_by_field(request_publish=True)
+    #     return self.render_template('admin.html',posts=posts)
+    # @login_required
+    # def post_new(self, request):
+    #     if request.method == 'POST':
+    #         title = request.form.get('title')
+    #         text = request.form.get('text')
+    #         request_publish = bool(request.form.get('request_publish'))
+    #         user_id = self.identity.user_id
+    #         username = self.identity.username
 
-            post = Post(title=title, text=text, request_publish = request_publish, user_id=user_id)
-            Post.save(post)
+    #         post = Post(title=title, text=text, request_publish = request_publish, user_id=user_id)
+    #         Post.save(post)
 
-            return redirect('/post/%s'%username)
+    #         return redirect('/post/%s'%username)
 
-        return self.render_template('new_post.html',post=None)
-    @login_required
-    def post_edit(self, request, post_id:int):
+    #     return self.render_template('new_post.html',post=None)
+    # @login_required
+    # def post_edit(self, request, post_id:int):
         
-        post = Post.get_by_id(post_id)
+    #     post = Post.get_by_id(post_id)
 
-        if request.method == 'POST':
-            request_publish = bool(request.form.get('request_publish'))
-            title = request.form.get('title')
-            text = request.form.get('text')
+    #     if request.method == 'POST':
+    #         request_publish = bool(request.form.get('request_publish'))
+    #         title = request.form.get('title')
+    #         text = request.form.get('text')
             
-            post.update(
-            title=title,
-            text=text,
-            request_publish=request_publish,
-            published=False,
-            updated_time = datetime.datetime.utcnow()
-            )
+    #         post.update(
+    #         title=title,
+    #         text=text,
+    #         request_publish=request_publish,
+    #         published=False,
+    #         updated_time = datetime.datetime.utcnow()
+    #         )
 
-            return redirect('/post/%s'%self.identity.username)
+    #         return redirect('/post/%s'%self.identity.username)
             
-        if post:
-            ## is author of that post
-            if post.user_id == self.identity.user_id: 
-                return self.render_template('new_post.html', post=post)
-        return self.render_template('404.html')
-    @login_required
-    def post(self, request, post_id):
-        is_owner = False
-        is_admin = False
+    #     if post:
+    #         ## is author of that post
+    #         if post.user_id == self.identity.user_id: 
+    #             return self.render_template('new_post.html', post=post)
+    #     return self.render_template('404.html')
+    # @login_required
+    # def post(self, request, post_id):
+    #     is_owner = False
+    #     is_admin = False
 
-        post = Post.get_by_id(post_id)
+    #     post = Post.get_by_id(post_id)
 
-        if post: 
-            if self.identity.user_id == post.user_id: 
-                is_owner = True
-            is_admin = self.identity.admin
-            return self.render_template('post.html', post=post,is_owner=is_owner, is_admin=is_admin)
-        return self.render_template('404.html')
+    #     if post: 
+    #         if self.identity.user_id == post.user_id: 
+    #             is_owner = True
+    #         is_admin = self.identity.admin
+    #         return self.render_template('post.html', post=post,is_owner=is_owner, is_admin=is_admin)
+    #     return self.render_template('404.html')
 
-    @admin_required
-    def post_publish(self, request, post_id):
-        post = Post.get_by_id(post_id)
+    # @admin_required
+    # def post_publish(self, request, post_id):
+    #     post = Post.get_by_id(post_id)
 
-        if not post: 
-            return NotFound("Post with id '{}' not found.".format(post_id))
-        else:
-            if not post.request_publish:
-                return redirect('/admin') 
+    #     if not post: 
+    #         return NotFound("Post with id '{}' not found.".format(post_id))
+    #     else:
+    #         if not post.request_publish:
+    #             return redirect('/admin') 
 
-            post.update(request_publish=False,
-            published=True, 
-            published_time=datetime.datetime.utcnow())
+    #         post.update(request_publish=False,
+    #         published=True, 
+    #         published_time=datetime.datetime.utcnow())
 
-            return redirect('/admin')
+    #         return redirect('/admin')
 
-    @login_required
-    def request_publish(self, request, post_id):
-        post = Post.get_by_id(post_id)
-        if not post:
-            return NotFound("Post with id '{}' not found.".format(post_id))
-        if post.published == True:
-            return self.render_template('/post/%i'%post_id)
-        if self.identity.user_id == post.user_id:
+    # @login_required
+    # def request_publish(self, request, post_id):
+    #     post = Post.get_by_id(post_id)
+    #     if not post:
+    #         return NotFound("Post with id '{}' not found.".format(post_id))
+    #     if post.published == True:
+    #         return self.render_template('/post/%i'%post_id)
+    #     if self.identity.user_id == post.user_id:
 
-            post.update( 
-            request_publish=True, 
-            updated_time=datetime.datetime.utcnow())
+    #         post.update( 
+    #         request_publish=True, 
+    #         updated_time=datetime.datetime.utcnow())
 
-            response = Response('Requested. Go back<a href="/post/%s">to the list</a>'%self.identity.username, mimetype='text/html')
-            response.status_code=200
-            return response
-        return Forbidden("")
-    @login_required
-    def post_delete(self, request, post_id):
-        post = Post.get_by_id(post_id)
-        if post:
-            if self.identity.user_id == post.user_id:
-                if request.method == 'POST':
-                    post.delete()
-                    return redirect("/post/%s"%(self.identity.username))
-                else:
-                    return Response("Are you sure you want to delete post <i>%s</i>?<br>\
-                    <form method='post' action=''><input type='submit' value='yes'></form>\
-                    <a href='/post/%i'><button type='button'>no</button></a>"%(post.title,post_id), mimetype="text/html")
-            else:
-                return Forbidden("")  
-        else:
-            return NotAcceptable("Invalid data.")
-    def authors(self,request):
-        ## HERE
-        ## NEED aggregation function
-        users = Post.full_details(published=True)
-        return self.render_template('popular_authors.html', users=users)
-    @login_required
-    def users_posts(self, request, authorname):
-        posts = []
-        is_owner = False
+    #         response = Response('Requested. Go back<a href="/post/%s">to the list</a>'%self.identity.username, mimetype='text/html')
+    #         response.status_code=200
+    #         return response
+    #     return Forbidden("")
+    # @login_required
+    # def post_delete(self, request, post_id):
+    #     post = Post.get_by_id(post_id)
+    #     if post:
+    #         if self.identity.user_id == post.user_id:
+    #             if request.method == 'POST':
+    #                 post.delete()
+    #                 return redirect("/post/%s"%(self.identity.username))
+    #             else:
+    #                 return Response("Are you sure you want to delete post <i>%s</i>?<br>\
+    #                 <form method='post' action=''><input type='submit' value='yes'></form>\
+    #                 <a href='/post/%i'><button type='button'>no</button></a>"%(post.title,post_id), mimetype="text/html")
+    #         else:
+    #             return Forbidden("")  
+    #     else:
+    #         return NotAcceptable("Invalid data.")
+    # def authors(self,request):
+    #     ## HERE
+    #     ## NEED aggregation function
+    #     users = Post.full_details(published=True)
+    #     return self.render_template('popular_authors.html', users=users)
+    # @login_required
+    # def users_posts(self, request, authorname):
+    #     posts = []
+    #     is_owner = False
 
-        author = User.get_by_field(username = authorname)[0]
+    #     author = User.get_by_field(username = authorname)[0]
         
-        if author:
-            ## select all posts from that author
+    #     if author:
+    #         ## select all posts from that author
 
-            if self.identity.user_id == author.user_id:
-                is_owner = True
-                posts = Post.get_by_field(user_id=author.user_id)
-            else:
-                ## HERE
-                posts = Post.query().join(User).filter(User.user_id == author.user_id, Post.published == True).order_by(Post.published_time.desc()).all()
-            return self.render_template('users_posts.html', posts=posts, is_owner=is_owner)
-        return self.render_template('404.html')
+    #         if self.identity.user_id == author.user_id:
+    #             is_owner = True
+    #             posts = Post.get_by_field(user_id=author.user_id)
+    #         else:
+    #             ## HERE
+    #             posts = Post.query().join(User).filter(User.user_id == author.user_id, Post.published == True).order_by(Post.published_time.desc()).all()
+    #         return self.render_template('users_posts.html', posts=posts, is_owner=is_owner)
+    #     return self.render_template('404.html')
     ## database calls
 
     # ## done
@@ -413,30 +413,32 @@ class Application(object):
 
      ## additional server functionality
     def _dispatch_request(self,request):
-        endpoint_to_views={
-            "index":self.index,
-            "login":self.login,
-            "main":self.main,
-            "signup":self.signup,
-            "admin":self.admin,
-            "about":self.about,
-            "logout":self.logout,
-            "post/new":self.post_new,
-            "post/edit":self.post_edit,
-            "post": self.post,
-            "post/authorname":self.users_posts,
-            "post/request_publish":self.request_publish,
-            "post/publish":self.post_publish,
-            "post/delete":self.post_delete,
-            "authors":self.authors,
-        }
+        ## REMOVE
+        # endpoint_to_views={
+        #     "index":self.index,
+        #     "login":self.login,
+        #     "main":self.main,
+        #     "signup":self.signup,
+        #     "admin":self.admin,
+        #     "about":self.about,
+        #     "logout":self.logout,
+        #     "post/new":self.post_new,
+        #     "post/edit":self.post_edit,
+        #     "post": self.post,
+        #     "post/authorname":self.users_posts,
+        #     "post/request_publish":self.request_publish,
+        #     "post/publish":self.post_publish,
+        #     "post/delete":self.post_delete,
+        #     "authors":self.authors,
+        # }
         adapter = self.url_map.bind_to_environ(request.environ)
         try:
             endpoint, values = adapter.match()
-            # handler = getattr(views, endpoint)
-            # response = handler(request, **values)
-            # return response
-            return endpoint_to_views[endpoint](request,**values)
+            handler = getattr(views, endpoint)
+            response = handler(request, **values)
+            return response
+            ## REMOVE
+            #return endpoint_to_views[endpoint](request,**values)
         except NotFound:
             return self.render_template('404.html')
         except HTTPException as e:
