@@ -11,6 +11,8 @@ from os import path
 import jwt
 
 from .models import User
+
+import datetime
 url_map = Map()
 
 TEMPLATE_PATH = path.join(path.dirname(__file__), "templates")
@@ -31,7 +33,7 @@ def render_template(template, **context):
         jinja_env.get_template(template).render(**context), mimetype="text/html"
     )
 
-def login_required(fun,**kwargs):
+def login_required(fun):
     def wrapper(request,**kwargs):
         if request.identity.logged_in:
             return fun(request,**kwargs)
@@ -39,8 +41,8 @@ def login_required(fun,**kwargs):
             return render_template("login_required.html")
     return wrapper
 
-def admin_required(fun,**kwargs):
-    def wrapper(request):
+def admin_required(fun):
+    def wrapper(request,**kwargs):
         if request.identity.admin:
             return fun(request,**kwargs)
         else:
@@ -128,7 +130,7 @@ class Auth(AuthSettings):
             raise ValueError(f"{user} is not instance of {cls.USER_MODEL}")
         return response
     @classmethod
-    def logout_user(cls, user, response:Response=None)->Response:
+    def logout_user(cls, user=None, response:Response=None)->Response:
         if not response:
             response = Response()
         response.delete_cookie(cls.TOKEN_NAME,None)

@@ -6,6 +6,7 @@ from werkzeug.utils import redirect
 import datetime
 
 from .models import User, Post
+from .utils import Auth
 
 @expose('/main')
 def main(request):
@@ -29,15 +30,14 @@ def signup(request):
         ## check if user already exist
         ## if not register new one
         user = User.get_user(username=username)
-        # if user:
-        #     ## need some flash to show this
-        #     error = "User already registered. Please, use another username."
-        #     return render_template('signup.html', error=error)
-        # else:
-        #     new_user = User(username=username, password=generate_password_hash(password, method='sha256'))
-        #     User.save(new_user)
-        #     response = login_user(new_user) ## method login_user already returns response
-        #     return response
+        if user:
+            error = "User already registered. Please, use another username."
+            return render_template('signup.html', error=error)
+        else:
+            new_user = User(username=username, password=generate_password_hash(password, method='sha256'))
+            User.save(new_user)
+            response = Auth.login_user(new_user,redirect(f"/user/{new_user.username}")) ## method login_user already returns response
+            return response
     return render_template('signup.html')
 
 @expose('/')
@@ -57,16 +57,19 @@ def login(request):
 
         #user = self.get_user_by_name(username)
         user = User.get_user(username=username) ## we use substracting, because result is list
-        # if not user or not check_password_hash(user.password, password): 
-        #     error = "Wrong credentials."
-        #     return self.render_template('login.html', error=error)
-        # else:
-        #     ## return token and render template
-        #     response = self.login_user(user)
-        #     return response
+        if not user or not check_password_hash(user.password, password): 
+             error = "Wrong credentials."
+             return render_template('login.html', error=error)
+        else:
+             response = Auth.login_user(user, redirect(f"/user/{user.username}"))
+             return response
     return render_template('login.html', error=error)
 
-    ## TODO
+@expose('/logout')
+def logout(request):
+    if request.identity.logged_in:
+        return Auth.logout_user(response=redirect("/main"))
+    return Forbidden("You need to be logged in.")
 @admin_required
 @expose('/admin')
 def admin(request):
@@ -188,7 +191,7 @@ def users_posts(request, authorname):
     posts = []
     is_owner = False
 
-    author = User.get_by_field(username = authorname)[0]
+    author = User.get_user(username=authorname)
     
     if author:
         ## select all posts from that author
