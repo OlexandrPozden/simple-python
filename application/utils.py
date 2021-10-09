@@ -1,6 +1,6 @@
 from werkzeug.routing import Map
 from werkzeug.routing import Rule
-from werkzeug.wrappers import Response
+from werkzeug.wrappers import Response, Request
 from werkzeug.exceptions import Forbidden
 
 from jinja2 import Environment
@@ -10,6 +10,7 @@ from os import path
 
 import jwt
 
+from .models import User
 url_map = Map()
 
 TEMPLATE_PATH = path.join(path.dirname(__file__), "templates")
@@ -30,20 +31,21 @@ def render_template(template, **context):
         jinja_env.get_template(template).render(**context), mimetype="text/html"
     )
 
-def login_required(fun):
-    def wrapper(request):
+def login_required(fun,**kwargs):
+    def wrapper(request,**kwargs):
         if request.identity.logged_in:
-            return fun(request)
+            return fun(request,**kwargs)
         else:
             return render_template("login_required.html")
     return wrapper
 
-def admin_required(fun):
+def admin_required(fun,**kwargs):
     def wrapper(request):
         if request.identity.admin:
-            return fun(request)
+            return fun(request,**kwargs)
         else:
             return Forbidden("Only users with admin rights can access this page.")
+    return wrapper
 
 class AuthSettings:
     SECRET_KEY = 'k4Ndh1r6af5SZVnGitY82lpjK646apEnOAnc5lhW'

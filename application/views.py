@@ -5,6 +5,8 @@ from .utils import expose, render_template, login_required, admin_required, Resp
 from werkzeug.utils import redirect
 import datetime
 
+from .models import User, Post
+
 @expose('/main')
 def main(request):
     posts = Post.full_details(published=True)
@@ -181,7 +183,7 @@ def post_delete(request, post_id):
         return NotAcceptable("Invalid data.")
     
 @login_required
-@expose('/post/<int:post_id>')
+@expose('/user/<string:authorname>')
 def users_posts(request, authorname):
     posts = []
     is_owner = False
@@ -200,8 +202,8 @@ def users_posts(request, authorname):
         return render_template('users_posts.html', posts=posts, is_owner=is_owner)
     return render_template('404.html')
 @expose('/authors')
-def authors(self,request):
+def authors(request):
     ## HERE TODO
     ## NEED aggregation function
     users = Post.full_details(published=True)
-    return self.render_template('popular_authors.html', users=users)
+    return render_template('popular_authors.html', users=users)

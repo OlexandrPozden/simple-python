@@ -30,12 +30,9 @@ import os
 from jinja2 import Environment
 from jinja2 import FileSystemLoader
 
+from .utils import url_map
+
 from .utils import Auth, Identity
-
-import datetime
-
-from .models import User, Post
-
 from . import views
 
 ## REMOVE
@@ -431,7 +428,7 @@ class Application(object):
         #     "post/delete":self.post_delete,
         #     "authors":self.authors,
         # }
-        adapter = self.url_map.bind_to_environ(request.environ)
+        adapter = url_map.bind_to_environ(request.environ)
         try:
             endpoint, values = adapter.match()
             handler = getattr(views, endpoint)
