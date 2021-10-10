@@ -1,5 +1,5 @@
 import unittest
-from application.application import *
+from application.models import Post
 
 class TestPostSave(unittest.TestCase):
     def setUp(self):

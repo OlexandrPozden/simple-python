@@ -26,24 +26,28 @@ function parseJwt (token) {
 
 token = getCookie('token');
 
-let userField = document.getElementById('user');
+let navBar = document.getElementById('nav');
 
+let firstElement = document.createElement('li');
+let secondElement = document.createElement('li');
+firstElement.style="float:right";
+secondElement.style="float:right";
 if(token!=""){
   console.log(token);
   payload = parseJwt(token);
   console.log(payload);
 
-
   var username = payload.username;
   if (username!=""){
     let userProfile = document.createElement('a');
-    userProfile.href = "/post/"+username;
+    userProfile.href = "/user/"+username;
     userProfile.innerHTML = username;
-    userField.appendChild(userProfile); 
+    userProfile.style = "color:#B2EB1C";
+    firstElement.appendChild(userProfile);
     let logOut = document.createElement('a');
     logOut.href = "/logout";
     logOut.innerHTML = "log out";
-    userField.appendChild(logOut);   
+    secondElement.appendChild(logOut);   
   }
 }
 else{
@@ -53,7 +57,10 @@ else{
   let signupOption = document.createElement('a');
   signupOption.innerHTML = "sign up";
   signupOption.href = "/signup";
-  userField.appendChild(loginOption);
-  userField.appendChild(signupOption);
+  firstElement.appendChild(loginOption);
+  secondElement.appendChild(signupOption);
 }
+
+navBar.appendChild(secondElement);
+navBar.appendChild(firstElement);
 

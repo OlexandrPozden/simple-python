@@ -65,7 +65,7 @@ def login(request):
 def logout(request):
     if request.identity.logged_in:
         return Auth.logout_user(response=redirect("/main"))
-    return Forbidden("You need to be logged in.")
+    return redirect("/login")
 @admin_required
 @expose('/admin')
 def admin(request):
