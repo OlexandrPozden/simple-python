@@ -1,1 +1,0 @@
-## Declare ORM SQLAlchemy
