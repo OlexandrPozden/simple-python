@@ -9,7 +9,7 @@ User :
         - username
         - password
         - admin
-    Post :
+Post :
         - post_id
         - title
         - text

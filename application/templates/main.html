@@ -8,22 +8,12 @@
         </div>
     </a>
     <p id="error">{% if error %}{{ error }}{% endif %}</p>
-    {% if username %}
-    <p>
-        <a href="/post/{{ username }}">{{ username }}
-        </a>
-        <a href="logout">
-            <p>log out</p>
-        </a>
-    </p>
-    {% else %}
-    <p><a href="/login">Login</a></p>
-    {% endif %} {% if posts %}
+    {% if posts %}
     <div class="posts">
 
         {% for post in posts %}
         <a href="/post/{{post.post_id}}">
-            <p>{{post.username}}-{{ post.title }}-{{post.published_time}}</p>
+            <p>-{{ post.title }}| {{post.username}}|{{post.published_time.date()}}</p>
         </a>
         {% endfor %}
 

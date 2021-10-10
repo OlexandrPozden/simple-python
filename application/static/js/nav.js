@@ -39,7 +39,11 @@ if(token!=""){
     let userProfile = document.createElement('a');
     userProfile.href = "/post/"+username;
     userProfile.innerHTML = username;
-    userField.appendChild(userProfile);    
+    userField.appendChild(userProfile); 
+    let logOut = document.createElement('a');
+    logOut.href = "/logout";
+    logOut.innerHTML = "log out";
+    userField.appendChild(logOut);   
   }
 }
 else{

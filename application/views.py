@@ -5,19 +5,16 @@ from .utils import expose, render_template, login_required, admin_required, Resp
 from werkzeug.utils import redirect
 import datetime
 
-from .models import User, Post
+from .models import User, Post, session
 from .utils import Auth
+
+from sqlalchemy import select, func, desc
 
 @expose('/main')
 def main(request):
     posts = Post.full_details(published=True)
     error = ""
     username = None
-    # posts = self.read_posts()
-
-    # if self.identity:
-    #     username = self.identity.username
-    # return self.render_template('main.html', posts=posts, error=error, username=username)
     return render_template('main.html', posts=posts, error=error, username=username)
 
 
@@ -55,8 +52,7 @@ def login(request):
         username = request.form.get('username','')
         password = request.form.get('password','')
 
-        #user = self.get_user_by_name(username)
-        user = User.get_user(username=username) ## we use substracting, because result is list
+        user = User.get_user(username=username) 
         if not user or not check_password_hash(user.password, password): 
              error = "Wrong credentials."
              return render_template('login.html', error=error)
@@ -195,7 +191,6 @@ def users_posts(request, authorname):
     
     if author:
         ## select all posts from that author
-
         if request.identity.user_id == author.user_id:
             is_owner = True
             posts = Post.get_by_field(user_id=author.user_id)
@@ -208,5 +203,7 @@ def users_posts(request, authorname):
 def authors(request):
     ## HERE TODO
     ## NEED aggregation function
-    users = Post.full_details(published=True)
+    statement = select(User.username,func.count().label("amount")).select_from(Post).join(User).where(Post.published==True).group_by(Post.user_id).order_by(desc("amount"))
+    statement = statement.limit(10)
+    users = session.execute(statement).all()
     return render_template('popular_authors.html', users=users)

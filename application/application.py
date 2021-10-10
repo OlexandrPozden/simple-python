@@ -1,30 +1,6 @@
-from sqlalchemy.sql.functions import user
 from werkzeug.wrappers import Request, Response
-## REMOVE
-#SECRET_KEY = 'k4Ndh1r6af5SZVnGitY82lpjK646apEnOAnc5lhW'
-
-# @Request.application
-# def application(request):
-#     return Response(f"Hello {request.args.get('name', 'World!')}!")
-
-# class BaseApplication(object):
-#     def __init__(self): ...
-#     def __call__(self, environ, start_response):
-#         raise NotImplementedError
-
-# class Dispatcher(BaseApplication):
-#     def dispatch(environ, start_response):
-#         pass
-
-# class Application(Dispatcher):
-#     def __init__(self):...
-#     def __call__(self, environ, start_response):
-
-from werkzeug.routing import Map, Rule, NotFound, RequestRedirect
 from werkzeug.exceptions import HTTPException, NotFound, Forbidden, NotAcceptable
 from werkzeug.middleware.shared_data import SharedDataMiddleware
-from werkzeug.utils import redirect
-from werkzeug.security import generate_password_hash, check_password_hash
 
 import os
 from jinja2 import Environment
@@ -32,7 +8,7 @@ from jinja2 import FileSystemLoader
 
 from .utils import url_map
 
-from .utils import Auth, Identity
+from .utils import Identity, render_template
 from . import views
 
 class Application(object):
@@ -50,16 +26,13 @@ class Application(object):
             response = handler(request, **values)
             return response
         except NotFound:
-            return self.render_template('404.html')
+            return render_template('404.html')
         except HTTPException as e:
             return e    
     def dispatch_request(self,request):
         identity = Identity(request)
         request.identity = identity
         return self._dispatch_request(request)
-    def render_template(self, template_name, **context):
-        t = self.jinja_env.get_template(template_name)
-        return Response(t.render(context), mimetype="text/html")
     def wsgi_app(self, environ, start_response):
         request = Request(environ)
         response = self.dispatch_request(request)
