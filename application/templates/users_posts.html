@@ -11,7 +11,7 @@
     {% if posts%}
     <!--list of posts-->
     {% for post in posts %}
-    <p>{{loop.index}}</p> - <a href="/post/{{post.post_id}}">{{post.title}}</a></p>
+    <p>{{loop.index}} - <a href="/post/{{post.post_id}}">{{post.title}}</a></p>
     {% endfor %} {%else%}
     <!-- In case when user didtn post anything yet-->
     {% if is_owner %}

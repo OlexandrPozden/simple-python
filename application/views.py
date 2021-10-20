@@ -84,15 +84,14 @@ def post_new(request):
         post = Post(title=title, text=text, request_publish = request_publish, user_id=user_id)
         Post.save(post)
 
-        return redirect('/post/%s'%username)
+        return redirect('/user/%s'%username)
 
-    return render_template('new_post.html',post=None)
+    return render_template('post_new_edit.html',post=None)
 @login_required
 @expose('/post/<int:post_id>/edit')
 def post_edit(request, post_id:int):
     
     post = Post.get_by_id(post_id)
-
     if request.method == 'POST':
         request_publish = bool(request.form.get('request_publish'))
         title = request.form.get('title')
@@ -106,12 +105,12 @@ def post_edit(request, post_id:int):
         updated_time = datetime.datetime.utcnow()
         )
 
-        return redirect('/post/%s'%self.identity.username)
+        return redirect('/user/%s'%request.identity.username)
         
     if post:
         ## is author of that post
         if post.user_id == request.identity.user_id: 
-            return render_template('new_post.html', post=post)
+            return render_template('post_new_edit.html', post=post)
     return render_template('404.html')
 @login_required
 @expose('/post/<int:post_id>')

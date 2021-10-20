@@ -53,7 +53,7 @@ class AuthSettings:
     SECRET_KEY = 'k4Ndh1r6af5SZVnGitY82lpjK646apEnOAnc5lhW'
     USER_MODEL = User
     ALGORITHM = 'HS256'
-    EXPIRATION_TIME = 300 ## in seconds
+    EXPIRATION_TIME = 3000 ## in seconds
     TOKEN_NAME = 'token'
 
 class JWTmanager(AuthSettings):
