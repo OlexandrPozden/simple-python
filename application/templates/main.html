@@ -1,19 +1,22 @@
 {% extends 'layout.html'%} {% block body %}
 <link rel="stylesheet" href="/static/css/main.css" type="text/css">
 <div class="container">
-    <p>Do you want to create your own posts? Try it out!</p>
-    <a href="post/new">
-        <div class="submit-cover">
-            <div class="submit">create new post</div>
-        </div>
-    </a>
-    <p id="error">{% if error %}{{ error }}{% endif %}</p>
-    {% if posts %}
+    <div class="leftside">
+        <p style="font-size:12px">Do you want to create your own posts? Try it out!</p>
+        <a href="post/new">
+            <div class="submit-cover">
+                <div class="submit">create new post</div>
+            </div>
+        </a>
+        <p id="error">{% if error %}{{ error }}{% endif %}</p>
+        {% if posts %}
+    </div>
     <div class="posts">
 
         {% for post in posts %}
         <a href="/post/{{post.post_id}}">
-            <p>-{{ post.title }}| {{post.username}}|{{post.published_time.date()}}</p>
+            <p>-{{ post.title }}</p>
+            <p>{{post.username}} <i>{{post.published_time.date()}}</i></p>
         </a>
         {% endfor %}
 
