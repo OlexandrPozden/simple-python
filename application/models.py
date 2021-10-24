@@ -30,9 +30,10 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, String, Integer, Boolean, Date, DateTime, ForeignKey  
 
 from werkzeug.security import generate_password_hash
+from .keys import DATABASE_URL
 
 base = declarative_base()
-engine = create_engine('sqlite:///test.db', echo=False)
+engine = create_engine(DATABASE_URL, echo=False)
 Session = sessionmaker(engine)  
 session = Session()
 base.metadata.create_all(engine)

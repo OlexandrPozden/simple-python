@@ -12,11 +12,14 @@ import jwt
 
 from .models import User
 
+from.keys import SECRET_KEY
+
 import datetime
+
 url_map = Map()
 
 TEMPLATE_PATH = path.join(path.dirname(__file__), "templates")
-SECRET_KEY = 'k4Ndh1r6af5SZVnGitY82lpjK646apEnOAnc5lhW'
+
 
 jinja_env = Environment(loader=FileSystemLoader(TEMPLATE_PATH))
 
