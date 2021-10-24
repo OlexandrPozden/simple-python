@@ -36,7 +36,9 @@ base = declarative_base()
 engine = create_engine(DATABASE_URL, echo=False)
 Session = sessionmaker(engine)  
 session = Session()
-base.metadata.create_all(engine)
+
+def initdb():
+    base.metadata.create_all(engine)
 
 class DbManipulation:
     @classmethod
@@ -275,7 +277,7 @@ class Post(base,DbPostManipulation):
     post_id = Column(Integer, primary_key=True, autoincrement=True)
     title = Column(String)
     text = Column(String, nullable=False)
-    user_id = Column(Integer, ForeignKey('users.user_id', ondelete="DELETE"))
+    user_id = Column(Integer, ForeignKey('users.user_id', ondelete="CASCADE"))
     published = Column(Boolean, default=False, nullable=False)
     request_publish = Column(Boolean, default=False, nullable=False)
     published_time = Column(DateTime)
@@ -291,7 +293,7 @@ def create_admin():
     ## hashing password
     password = generate_password_hash(password, method='sha256')
     ## check if username is already taken
-    if not User.get_by_field(username=username)[0]:
+    if not User.get_user(username=username):
         ## create new user with admin privileges
         new_admin = User(username=username, password=password, admin=True)
         User.save(new_admin)

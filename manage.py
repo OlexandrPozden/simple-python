@@ -36,7 +36,17 @@ def runserver(hostname, port, no_reloader, debugger, no_evalex, threaded, proces
         processes=processes,
     )
 
+@cli.command()
+def initdb():
+    print("initing db")
+    from application import initdb
+    initdb()
+    print("done")
 
+@cli.command()
+def newadmin():
+    from application import create_admin
+    create_admin()
 @cli.command()
 @click.option("--no-ipython", is_flag=True, default=False)
 def shell(no_ipython):

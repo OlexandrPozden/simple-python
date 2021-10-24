@@ -6,6 +6,6 @@ joblib==0.16.0
 requests==2.25.1
 SQLAlchemy==1.4.22
 werkzeug
-jwt
+pyjwt
 python-dotenv
 psycopg2

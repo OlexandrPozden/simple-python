@@ -12,9 +12,9 @@ import jwt
 
 from .models import User
 
-from.keys import SECRET_KEY
-
 import datetime
+
+from.keys import SECRET_KEY
 
 url_map = Map()
 
@@ -53,7 +53,7 @@ def admin_required(fun):
     return wrapper
 
 class AuthSettings:
-    SECRET_KEY = 'k4Ndh1r6af5SZVnGitY82lpjK646apEnOAnc5lhW'
+    SECRET_KEY = SECRET_KEY
     USER_MODEL = User
     ALGORITHM = 'HS256'
     EXPIRATION_TIME = 3000 ## in seconds
