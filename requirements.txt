@@ -8,3 +8,4 @@ SQLAlchemy==1.4.22
 werkzeug
 jwt
 python-dotenv
+psycopg2
