@@ -202,7 +202,7 @@ def users_posts(request, authorname):
 def authors(request):
     ## HERE TODO
     ## NEED aggregation function
-    statement = select(User.username,func.count().label("amount")).select_from(Post).join(User).where(Post.published==True).group_by(Post.user_id).order_by(desc("amount"))
+    statement = select(User.username,func.count().label("amount")).select_from(Post).join(User).where(Post.published==True).group_by(User.username).order_by(desc("amount"))
     statement = statement.limit(10)
     users = session.execute(statement).all()
     return render_template('popular_authors.html', users=users)
