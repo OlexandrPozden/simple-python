@@ -145,7 +145,7 @@ def post_publish(request, post_id):
         return redirect('/admin')
 
 @login_required
-@expose('/post/<int:post_id>/request')
+@expose('/post/<int:post_id>/request_publish')
 def request_publish(request, post_id):
     post = Post.get_by_id(post_id)
     if not post:
@@ -158,7 +158,7 @@ def request_publish(request, post_id):
         request_publish=True, 
         updated_time=datetime.datetime.utcnow())
 
-        response = Response('Requested. Go back<a href="/post/%s">to the list</a>'%request.identity.username, mimetype='text/html')
+        response = Response('Requested. Go back<a href="/user/%s">to the list</a>'%request.identity.username, mimetype='text/html')
         response.status_code=200
         return response
     return Forbidden("")
@@ -170,7 +170,7 @@ def post_delete(request, post_id):
         if request.identity.user_id == post.user_id:
             if request.method == 'POST':
                 post.delete()
-                return redirect("/post/%s"%(request.identity.username))
+                return redirect("/user/%s"%(request.identity.username))
             else:
                 return Response("Are you sure you want to delete post <i>%s</i>?<br>\
                 <form method='post' action=''><input type='submit' value='yes'></form>\
